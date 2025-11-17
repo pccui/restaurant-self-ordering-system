@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model MenuItem {
+  id           String @id
+  category     String
+  priceCents   Int
+  tastes       Json?
+  ingredients  Json?
+  thumbnailUrl String?
+  imageUrl     String?
+  videoUrl     String?
+  featured     Boolean @default(false)
+  translations Json
+}
+
+model Order {
+  id        String   @id @default(cuid())
+  tableId   String
+  items     Json
+  status    String   @default("pending")
+  metadata  Json?
+  createdAt DateTime @default(now())
+}
