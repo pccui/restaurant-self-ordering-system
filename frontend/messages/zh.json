@@ -1,10 +1,62 @@
 {
-  "menu.title": "菜单",
-  "menu.sichuan": "川菜",
-  "menu.xian": "西安菜",
-  "basket.title": "您的购物篮",
-  "basket.checkout": "结算",
-  "mode.online": "在线",
-  "mode.offline": "离线",
-  "language.switch": "语言"
+  "menu": {
+    "title": "菜单",
+    "sichuan": "川菜",
+    "xian": "西安菜",
+    "sichuanFull": "川菜",
+    "xianFull": "西安菜",
+    "dishes": "{count} 道菜",
+    "tasteCharacteristics": "口味特点",
+    "ingredients": "食材",
+    "addToCart": "加入购物车"
+  },
+  "basket": {
+    "title": "购物车",
+    "empty": "购物车是空的",
+    "emptyDescription": "添加一些美味佳肴开始点餐吧",
+    "browseMenu": "浏览菜单",
+    "checkout": "结算",
+    "clear": "清空购物车",
+    "total": "合计",
+    "items": "{count} 件商品"
+  },
+  "mode": {
+    "online": "在线",
+    "offline": "离线"
+  },
+  "language": {
+    "switch": "语言",
+    "en": "English",
+    "zh": "中文",
+    "de": "Deutsch",
+    "select": "选择语言"
+  },
+  "search": {
+    "placeholder": "搜索菜品名称或描述...",
+    "noResults": "未找到菜品",
+    "dishFound": "道菜",
+    "dishesFound": "道菜",
+    "resultCount": "{count} 道菜"
+  },
+  "filter": {
+    "category": "分类",
+    "clearAll": "清除全部",
+    "all": "全部",
+    "sichuan": "川菜",
+    "xian": "西安菜",
+    "tasteCharacteristics": "口味特点",
+    "selected": "已选",
+    "active": "{count} 个筛选条件",
+    "reset": "重置"
+  },
+  "results": {
+    "noMatches": "未找到菜品",
+    "tryAdjusting": "请尝试调整搜索或筛选条件",
+    "searchResults": "搜索结果"
+  },
+  "nav": {
+    "menu": "菜单",
+    "demoMode": "演示模式",
+    "basket": "购物车"
+  }
 }

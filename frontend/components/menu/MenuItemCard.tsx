@@ -1,40 +1,119 @@
 'use client'
 import React from 'react'
-import Card from '@/components/ui/Card'
-import Button from '@/components/ui/Button'
-import Badge from '@/components/ui/Badge'
+import Image from 'next/image'
 import { useLocale } from 'next-intl'
 import { useOrderStore } from '@/lib/store/orderStore'
+import { getTasteBadgeClasses, getTasteIcon } from '@/lib/utils/tasteColors'
 import type { MenuItem } from '@restaurant/shared/src/schemas/menu'
 
 interface Taste {
   [key: string]: string;
 }
 
-export default function MenuItemCard({ item }: { item: MenuItem & { tastes?: Taste[] } }) {
-  const locale = typeof useLocale === 'function' ? useLocale() : 'en';
+interface MenuItemCardProps {
+  item: MenuItem & { tastes?: Taste[] }
+  onOpenDetail?: (item: MenuItem & { tastes?: Taste[] }) => void
+}
+
+function MenuItemCard({ item, onOpenDetail }: MenuItemCardProps) {
+  const locale = useLocale();
   const translations = item.translations as Record<string, { name?: string; shortDescription?: string }>;
   const t = translations[locale as keyof typeof translations] || translations.en || { name: '', shortDescription: '' };
   const add = useOrderStore((s) => s.addItem);
+
+  const handleCardClick = () => {
+    if (onOpenDetail) {
+      onOpenDetail(item)
+    }
+  }
+
+  const handleAddClick = (e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent card click
+    add({
+      id: item.id,
+      name: t.name || '',
+      priceCents: item.priceCents,
+      qty: 1
+    })
+  }
+
   return (
-    <Card className="flex flex-col h-full">
-      {item.thumbnailUrl && <div className="h-44 bg-gray-100 overflow-hidden"><img src={item.thumbnailUrl} alt={t.name} className="w-full h-full object-cover" /></div>}
-      <div className="p-3 flex-1 flex flex-col justify-between">
+    <article
+      className="flex gap-4 p-3 bg-white rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer group"
+      onClick={handleCardClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && handleCardClick()}
+      aria-label={`View details for ${t.name}`}
+    >
+      {/* Square Thumbnail - 100x100px */}
+      {item.thumbnailUrl && (
+        <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
+          <Image
+            src={item.thumbnailUrl}
+            alt={t.name || 'Menu item'}
+            className="object-cover transition-transform duration-200 group-hover:scale-105"
+            fill
+            sizes="112px"
+            loading="lazy"
+          />
+        </div>
+      )}
+
+      {/* Content */}
+      <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
         <div>
-          <div className="flex justify-between items-start">
-            <h3 className="text-base font-semibold">{t.name}</h3>
-            <div className="text-sm font-medium">¥{(item.priceCents/100).toFixed(2)}</div>
-          </div>
-          {t.shortDescription && <p className="text-sm text-gray-600 mt-2 line-clamp-2">{t.shortDescription}</p>}
-          <div className="mt-3 flex flex-wrap gap-2">
-            {(item.tastes || []).slice(0,3).map((tt: Taste, idx: number) => <Badge key={idx}>{tt[locale] || tt.en}</Badge>)}
+          {/* Name */}
+          <h3 className="text-base font-semibold text-gray-900 leading-tight line-clamp-1">
+            {t.name}
+          </h3>
+
+          {/* Short Description */}
+          {t.shortDescription && (
+            <p className="text-sm text-gray-500 mt-1 line-clamp-2 leading-snug">
+              {t.shortDescription}
+            </p>
+          )}
+
+          {/* Taste Badges - Compact */}
+          <div className="mt-2 flex flex-wrap gap-1">
+            {(item.tastes || []).slice(0, 2).map((taste: Taste, idx: number) => {
+              const tasteText = taste[locale] || taste.en || ''
+              const icon = getTasteIcon(tasteText)
+              return (
+                <span
+                  key={idx}
+                  className={getTasteBadgeClasses(tasteText) + ' text-xs py-0.5 px-1.5'}
+                  aria-label={tasteText}
+                >
+                  <span aria-hidden="true">{icon}</span>
+                  <span>{tasteText}</span>
+                </span>
+              )
+            })}
           </div>
         </div>
-        <div className="mt-3 flex items-center justify-between">
-          <Button className="bg-primary-500 text-white" onClick={() => add({ id: item.id, name: t.name || '', priceCents: item.priceCents, qty: 1 })}>Add</Button>
-          <a href={`/menu/${item.id}`} className="text-sm text-slate-600">Details</a>
+
+        {/* Price */}
+        <div className="text-base font-bold text-gray-900 mt-2">
+          ¥{(item.priceCents / 100).toFixed(2)}
         </div>
       </div>
-    </Card>
+
+      {/* Add Button - Right side */}
+      <div className="flex items-center">
+        <button
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white transition-colors shadow-sm"
+          onClick={handleAddClick}
+          aria-label={`Add ${t.name} to cart`}
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
+      </div>
+    </article>
   )
 }
+
+export default React.memo(MenuItemCard)

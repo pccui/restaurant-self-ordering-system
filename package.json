@@ -14,6 +14,7 @@
     "dev": "pnpm -r dev",
     "build:shared": "pnpm --filter @restaurant/shared build",
     "build:frontend": "pnpm --filter frontend build",
+    "build:frontend:clean": "rm -rf frontend/.next tsconfig.tsbuildinfo && pnpm --filter frontend build",
     "build:backend": "pnpm --filter backend build",
     "build": "pnpm build:shared && pnpm -r --filter '!@restaurant/shared' --parallel build",
     "start": "pnpm -r start",

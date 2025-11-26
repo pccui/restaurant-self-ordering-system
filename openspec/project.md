@@ -17,6 +17,11 @@ The Restaurant Self-Ordering System is a full-stack portfolio project demonstrat
 
 ## Tech Stack
 
+### Development Tools
+- pnpm workspace (monorepo)
+- Jest for testing
+- ESLint and Prettier for code formatting
+
 ### Frontend
 
 - Next.js 15 (App Router, RSC aware)
@@ -47,6 +52,7 @@ The Restaurant Self-Ordering System is a full-stack portfolio project demonstrat
   - Order
   - Offline sync payloads
 - Shared initialization helpers (`initMenuData()`)
+
 
 ## Project Conventions
 

@@ -3,6 +3,41 @@
 @tailwind utilities;
 
 /* small app-level polish */
+html { scroll-behavior: smooth; }
 html,body,#__next { height: 100%; }
 body { -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
-.container { max-width: 1100px; margin: 0 auto; padding: 1rem; }
+.container { max-width: 1100px; margin: 0 auto; padding: 0 1rem; }
+
+/* Hide scrollbar for category nav */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Animation utilities */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes zoom-in-95 {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.animate-in {
+  animation-duration: 200ms;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+
+.fade-in-0 {
+  animation-name: fade-in;
+}
+
+.zoom-in-95 {
+  animation-name: zoom-in-95;
+}

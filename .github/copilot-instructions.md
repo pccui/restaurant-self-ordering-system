@@ -77,7 +77,7 @@ export class MenuService {
 ```
 
 ### 5. Frontend Patterns
-- **App Router structure**: 
+- **App Router structure**:
   - Routes in `app/` with `route.ts` for API endpoints
   - API handlers: `app/api/online/menu/route.ts`, `app/api/online/order/route.ts`
   - Data/utilities in `lib/`: `lib/api/`, `lib/data/`, `lib/store/`, `lib/sync/`
@@ -94,7 +94,7 @@ export class MenuService {
 - Keep components single-purpose (SOLID principles)
 
 ### 7. Data Flow
-**Menu Data**: 
+**Menu Data**:
 - Source: `frontend/public/menu.json` → seed → PostgreSQL → API → FE
 - Offline: Fetch once, cache in IndexedDB via localforage
 
@@ -119,10 +119,10 @@ export class MenuService {
 - **Error handling**: Graceful degradation for offline scenarios
 
 ## Common Pitfalls
-❌ Don't hardcode locale strings—always use `translations[locale]`  
-❌ Don't mix frontend/backend imports (workspace boundaries)  
-❌ Don't skip Zod validation on backend endpoints  
-❌ Don't forget offline fallback for network operations  
+❌ Don't hardcode locale strings—always use `translations[locale]`
+❌ Don't mix frontend/backend imports (workspace boundaries)
+❌ Don't skip Zod validation on backend endpoints
+❌ Don't forget offline fallback for network operations
 ❌ Don't use relative paths across workspaces—use workspace aliases (`@restaurant/shared`)
 
 ## When Adding Features

@@ -1,10 +1,62 @@
 {
-  "menu.title": "Menü",
-  "menu.sichuan": "Sichuan (川菜)",
-  "menu.xian": "Xi'an (西安菜)",
-  "basket.title": "Ihr Warenkorb",
-  "basket.checkout": "Bezahlen",
-  "mode.online": "Online",
-  "mode.offline": "Offline",
-  "language.switch": "Sprache"
+  "menu": {
+    "title": "Menü",
+    "sichuan": "Sichuan",
+    "xian": "Xi'an",
+    "sichuanFull": "Sichuan (川菜)",
+    "xianFull": "Xi'an (西安菜)",
+    "dishes": "{count} {count, plural, one {Gericht} other {Gerichte}}",
+    "tasteCharacteristics": "Geschmacksmerkmale",
+    "ingredients": "Zutaten",
+    "addToCart": "In den Warenkorb"
+  },
+  "basket": {
+    "title": "Ihr Warenkorb",
+    "empty": "Ihr Warenkorb ist leer",
+    "emptyDescription": "Fügen Sie einige leckere Gerichte hinzu, um loszulegen",
+    "browseMenu": "Menü durchsuchen",
+    "checkout": "Bezahlen",
+    "clear": "Warenkorb leeren",
+    "total": "Gesamt",
+    "items": "{count} {count, plural, one {Artikel} other {Artikel}}"
+  },
+  "mode": {
+    "online": "Online",
+    "offline": "Offline"
+  },
+  "language": {
+    "switch": "Sprache",
+    "en": "English",
+    "zh": "中文",
+    "de": "Deutsch",
+    "select": "Sprache wählen"
+  },
+  "search": {
+    "placeholder": "Gerichte nach Name oder Beschreibung suchen...",
+    "noResults": "Keine Gerichte gefunden",
+    "dishFound": "Gericht gefunden",
+    "dishesFound": "Gerichte gefunden",
+    "resultCount": "{count} {count, plural, one {Gericht} other {Gerichte}}"
+  },
+  "filter": {
+    "category": "Kategorie",
+    "clearAll": "Alle löschen",
+    "all": "Alle",
+    "sichuan": "Sichuan",
+    "xian": "Xi'an",
+    "tasteCharacteristics": "Geschmacksmerkmale",
+    "selected": "ausgewählt",
+    "active": "{count} {count, plural, one {Filter} other {Filter}} aktiv",
+    "reset": "Zurücksetzen"
+  },
+  "results": {
+    "noMatches": "Keine Gerichte gefunden",
+    "tryAdjusting": "Versuchen Sie, Ihre Suche oder Filter anzupassen",
+    "searchResults": "Suchergebnisse"
+  },
+  "nav": {
+    "menu": "Menü",
+    "demoMode": "Demo-Modus",
+    "basket": "Warenkorb"
+  }
 }

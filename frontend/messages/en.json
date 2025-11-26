@@ -1,10 +1,62 @@
 {
-  "menu.title": "Menu",
-  "menu.sichuan": "Sichuan (川菜)",
-  "menu.xian": "Xi'an (西安菜)",
-  "basket.title": "Your Basket",
-  "basket.checkout": "Checkout",
-  "mode.online": "Online",
-  "mode.offline": "Offline",
-  "language.switch": "Language"
+  "menu": {
+    "title": "Menu",
+    "sichuan": "Sichuan",
+    "xian": "Xi'an",
+    "sichuanFull": "Sichuan (川菜)",
+    "xianFull": "Xi'an (西安菜)",
+    "dishes": "{count} {count, plural, one {dish} other {dishes}}",
+    "tasteCharacteristics": "Taste Characteristics",
+    "ingredients": "Ingredients",
+    "addToCart": "Add to Cart"
+  },
+  "basket": {
+    "title": "Your Cart",
+    "empty": "Your cart is empty",
+    "emptyDescription": "Add some delicious dishes to get started",
+    "browseMenu": "Browse Menu",
+    "checkout": "Checkout",
+    "clear": "Clear Cart",
+    "total": "Total",
+    "items": "{count} {count, plural, one {item} other {items}}"
+  },
+  "mode": {
+    "online": "Online",
+    "offline": "Offline"
+  },
+  "language": {
+    "switch": "Language",
+    "en": "English",
+    "zh": "中文",
+    "de": "Deutsch",
+    "select": "Select language"
+  },
+  "search": {
+    "placeholder": "Search dishes by name or description...",
+    "noResults": "No dishes found",
+    "dishFound": "dish found",
+    "dishesFound": "dishes found",
+    "resultCount": "{count} {count, plural, one {dish} other {dishes}}"
+  },
+  "filter": {
+    "category": "Category",
+    "clearAll": "Clear all",
+    "all": "All",
+    "sichuan": "Sichuan",
+    "xian": "Xi'an",
+    "tasteCharacteristics": "Taste Characteristics",
+    "selected": "selected",
+    "active": "{count} {count, plural, one {filter} other {filters}} active",
+    "reset": "Reset"
+  },
+  "results": {
+    "noMatches": "No dishes found",
+    "tryAdjusting": "Try adjusting your search or filters",
+    "searchResults": "Search Results"
+  },
+  "nav": {
+    "menu": "Menu",
+    "demoMode": "Demo Mode",
+    "basket": "Basket"
+  }
 }
