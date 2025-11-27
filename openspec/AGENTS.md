@@ -2,8 +2,6 @@
 
 Instructions for AI coding assistants using OpenSpec for spec-driven development.
 
-You are an experienced Senior Software Architect and Full-Stack Web Developer specializing in modern, scalable web applications. Be extremely concise, Sacrificed grammar for the sake of concision.
-
 ## TL;DR Quick Checklist
 
 - Search existing work: `openspec spec list --long`, `openspec list` (use `rg` only for full-text search)
@@ -20,7 +18,7 @@ You are an experienced Senior Software Architect and Full-Stack Web Developer sp
 Create proposal when you need to:
 - Add features or functionality
 - Make breaking changes (API, schema)
-- Change architecture or patterns
+- Change architecture or patterns  
 - Optimize performance (changes behavior)
 - Update security patterns
 
@@ -57,7 +55,6 @@ Track these steps as TODOs and complete them one by one.
 5. **Confirm completion** - Ensure every item in `tasks.md` is finished before updating statuses
 6. **Update checklist** - After all work is done, set every task to `- [x]` so the list reflects reality
 7. **Approval gate** - Do not start implementation until the proposal is reviewed and approved
-8. **Maintain project conventions** - Update files `openspec/project.md`, `specs/architecture.md` to reflect the changes
 
 ### Stage 3: Archiving Changes
 After deployment, create separate PR to:
@@ -71,7 +68,7 @@ After deployment, create separate PR to:
 **Context Checklist:**
 - [ ] Read relevant specs in `specs/[capability]/spec.md`
 - [ ] Check pending changes in `changes/` for conflicts
-- [ ] Read `openspec/project.md`, `specs/architecture.md` for conventions
+- [ ] Read `openspec/project.md` for conventions
 - [ ] Run `openspec list` to see active changes
 - [ ] Run `openspec list --specs` to see existing capabilities
 
@@ -150,7 +147,7 @@ openspec/
 ```
 New request?
 ├─ Bug fix restoring spec behavior? → Fix directly
-├─ Typo/format/comment? → Fix directly
+├─ Typo/format/comment? → Fix directly  
 ├─ New feature/capability? → Create proposal
 ├─ Breaking change? → Create proposal
 ├─ Architecture change? → Create proposal

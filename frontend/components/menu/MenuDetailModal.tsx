@@ -5,6 +5,7 @@ import { useLocale } from 'next-intl'
 import Dialog from '@/components/ui/Dialog'
 import { useOrderStore } from '@/lib/store/orderStore'
 import { getTasteBadgeClasses, getTasteIcon } from '@/lib/utils/tasteColors'
+import { formatPrice } from '@/lib/utils/formatPrice'
 import type { MenuItem } from '@restaurant/shared/src/schemas/menu'
 
 interface Taste {
@@ -68,7 +69,7 @@ export default function MenuDetailModal({ item, onClose }: MenuDetailModalProps)
 
         {/* Price */}
         <div className="text-xl font-bold text-primary-600">
-          ¥{(item.priceCents / 100).toFixed(2)}
+          {formatPrice(item.priceCents)}
         </div>
 
         {/* Detailed Description */}
@@ -153,7 +154,7 @@ export default function MenuDetailModal({ item, onClose }: MenuDetailModalProps)
             onClick={handleAddToCart}
             className="flex-1 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white py-3 px-6 rounded-full font-medium transition-colors text-base"
           >
-            Add to Cart · ¥{((item.priceCents * quantity) / 100).toFixed(2)}
+            Add to Cart · {formatPrice(item.priceCents * quantity)}
           </button>
         </div>
       </div>

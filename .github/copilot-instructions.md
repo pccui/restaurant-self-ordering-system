@@ -49,13 +49,13 @@ translations: {
 - Access via `item.translations[locale]` with fallback: `item.translations[locale] || item.translations.en`
 - See `MenuItemCard.tsx` for pattern: `const t = item.translations[locale] || item.translations.en`
 
-### 3. Offline-First Pattern
-**All write operations** must support offline mode:
-1. Try online API (`/api/online/order`)
-2. If fails, queue via `queueOrder()` in IndexedDB
-3. Background sync via `syncPendingOrders()` when online
+### 3. Local/Server Mode Pattern
+**All write operations** must support local mode:
+1. Try server API (`/api/online/order`)
+2. If fails, queue via `queueOrderForSync()` in IndexedDB
+3. Background sync via `syncPendingOrdersToServer()` when server available
 
-See `frontend/lib/sync/offlineSync.ts` and `frontend/lib/api/orderClient.ts` for reference implementation.
+See `frontend/lib/sync/localSync.ts` and `frontend/lib/api/orderClient.ts` for reference implementation.
 
 ### 4. Backend Architecture
 - **Port 3001**, global prefix `/api`
@@ -107,7 +107,7 @@ export class MenuService {
 - `docs/code-quality-principles.md` — 32 engineering principles (SOLID, DRY, etc.)
 - `backend/prisma/schema.prisma` — DB schema (MenuItem, Order models)
 - `packages/shared/src/schemas/order.ts` — Order validation schema
-- `frontend/lib/sync/offlineSync.ts` — Offline queue implementation
+- `frontend/lib/sync/localSync.ts` — Local queue implementation with server sync
 - `backend/src/init/initMenuData.ts` — Seeding script
 
 ## Code Quality Requirements
@@ -122,7 +122,7 @@ export class MenuService {
 ❌ Don't hardcode locale strings—always use `translations[locale]`
 ❌ Don't mix frontend/backend imports (workspace boundaries)
 ❌ Don't skip Zod validation on backend endpoints
-❌ Don't forget offline fallback for network operations
+❌ Don't forget local fallback for network operations
 ❌ Don't use relative paths across workspaces—use workspace aliases (`@restaurant/shared`)
 
 ## When Adding Features
@@ -130,5 +130,5 @@ export class MenuService {
 2. Update Prisma schema if DB changes needed
 3. Run migration: `npx prisma migrate dev`
 4. Implement backend service/controller with validation
-5. Add frontend API client with offline support
-6. Test both online and offline scenarios
+5. Add frontend API client with local fallback support
+6. Test both local and server mode scenarios

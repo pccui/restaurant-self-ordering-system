@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { useLocale } from 'next-intl'
 import { useOrderStore } from '@/lib/store/orderStore'
 import { getTasteBadgeClasses, getTasteIcon } from '@/lib/utils/tasteColors'
+import { formatPrice } from '@/lib/utils/formatPrice'
 import type { MenuItem } from '@restaurant/shared/src/schemas/menu'
 
 interface Taste {
@@ -96,7 +97,7 @@ function MenuItemCard({ item, onOpenDetail }: MenuItemCardProps) {
 
         {/* Price */}
         <div className="text-base font-bold text-gray-900 mt-2">
-          ¥{(item.priceCents / 100).toFixed(2)}
+          {formatPrice(item.priceCents)}
         </div>
       </div>
 

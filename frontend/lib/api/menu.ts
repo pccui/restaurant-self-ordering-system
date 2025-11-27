@@ -1,12 +1,20 @@
 import { MenuSchema, type Menu } from '@restaurant/shared/src/schemas/menu';
 import localforage from 'localforage';
 
-export async function fetchMenuOnline(): Promise<Menu> {
+/**
+ * Fetch menu from the server API
+ * Used when data mode is 'server'
+ */
+export async function fetchMenuServer(): Promise<Menu> {
   const res = await fetch('/api/online/menu').then(r => r.json()).catch(()=>[]);
   return MenuSchema.parse(res);
 }
 
-export async function fetchMenuOffline(): Promise<Menu> {
+/**
+ * Fetch menu from local storage or static JSON file
+ * Used when data mode is 'local' (default for demo)
+ */
+export async function fetchMenuLocal(): Promise<Menu> {
   const cached = await localforage.getItem('menu') as Menu | null;
   if (cached) return cached;
   const res = await fetch('/menu.json').then(r => r.json()).catch(()=>[]);
@@ -15,11 +23,20 @@ export async function fetchMenuOffline(): Promise<Menu> {
   return parsed;
 }
 
-export async function fetchMenu(): Promise<Menu> {
-  return await fetchMenuOffline().catch(async () => {
-    return fetchMenuOnline();
-  });
+/**
+ * Fetch menu based on current data mode
+ * Falls back to local if server fails
+ */
+export async function fetchMenu(mode: 'local' | 'server' = 'local'): Promise<Menu> {
+  if (mode === 'server') {
+    return fetchMenuServer().catch(() => fetchMenuLocal());
+  }
+  return fetchMenuLocal();
 }
+
+// Legacy aliases for backward compatibility
+export const fetchMenuOffline = fetchMenuLocal;
+export const fetchMenuOnline = fetchMenuServer;
 
 export async function fetchMenuItem(id: string) {
   const menu = await fetchMenu();

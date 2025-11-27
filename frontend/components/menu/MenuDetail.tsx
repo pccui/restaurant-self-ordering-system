@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useLocale } from 'next-intl'
 import { useOrderStore } from '@/lib/store/orderStore'
 import { getTasteBadgeClasses, getTasteIcon } from '@/lib/utils/tasteColors'
+import { formatPrice } from '@/lib/utils/formatPrice'
 import Button from '@/components/ui/Button'
 import type { MenuItem } from '@restaurant/shared/src/schemas/menu'
 
@@ -101,7 +102,7 @@ export default function MenuDetail({ item }: { item: MenuItem & Record<string, u
           {t.name}
         </h1>
         <div className="text-xl sm:text-2xl font-bold text-primary-600 whitespace-nowrap">
-          ¥{(item.priceCents / 100).toFixed(2)}
+          {formatPrice(item.priceCents)}
         </div>
       </div>
 
@@ -200,7 +201,7 @@ export default function MenuDetail({ item }: { item: MenuItem & Record<string, u
             onClick={handleAddToCart}
             className="flex-1 sm:flex-initial bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white px-6 sm:px-8 py-3.5 sm:py-3 text-base font-medium transition-colors min-h-[52px] sm:min-h-0"
           >
-            Add to Cart · ¥{((item.priceCents * quantity) / 100).toFixed(2)}
+            Add to Cart · {formatPrice(item.priceCents * quantity)}
           </Button>
         </div>
       </div>

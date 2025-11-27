@@ -15,20 +15,39 @@
     "empty": "Ihr Warenkorb ist leer",
     "emptyDescription": "Fügen Sie einige leckere Gerichte hinzu, um loszulegen",
     "browseMenu": "Menü durchsuchen",
-    "checkout": "Bezahlen",
     "clear": "Warenkorb leeren",
     "total": "Gesamt",
     "items": "{count} {count, plural, one {Artikel} other {Artikel}}"
   },
+  "cart": {
+    "placeOrder": "Bestellen",
+    "addToOrder": "Zur Bestellung hinzufügen"
+  },
+  "order": {
+    "activeOrder": "Aktive Bestellung",
+    "locked": "Gesperrt",
+    "timeRemaining": "{minutes}:{seconds} verbleibend",
+    "confirmed": "Bestätigt",
+    "pending": "Ausstehend",
+    "noModify": "Bestellung gesperrt - Artikel können nicht geändert werden",
+    "history": "Bestellverlauf",
+    "orderPlaced": "Bestellung erfolgreich aufgegeben!",
+    "itemsAdded": "Artikel zur Bestellung hinzugefügt!",
+    "autoConfirmed": "Bestellung automatisch bestätigt"
+  },
   "mode": {
-    "online": "Online",
-    "offline": "Offline"
+    "local": "Lokal",
+    "server": "Server",
+    "bannerTitle": "Datenmodusauswahl",
+    "bannerDesc": "Aufgrund von Einschränkungen beim kostenlosen Server-Hosting kann die Antwortzeit langsam sein. Der lokale Modus nutzt den Browser-Speicher und bietet das volle Funktionserlebnis.",
+    "selectionLabel": "Datenmodus auswählen",
+    "settings": "Datenmodus-Einstellungen"
   },
   "language": {
     "switch": "Sprache",
-    "en": "English",
-    "zh": "中文",
-    "de": "Deutsch",
+    "en": "EN",
+    "zh": "ZH",
+    "de": "DE",
     "select": "Sprache wählen"
   },
   "search": {
@@ -56,7 +75,13 @@
   },
   "nav": {
     "menu": "Menü",
-    "demoMode": "Demo-Modus",
-    "basket": "Warenkorb"
+    "basket": "Warenkorb",
+    "showSettings": "Datenmodus-Einstellungen anzeigen"
+  },
+  "common": {
+    "dismiss": "Schließen",
+    "close": "Schließen",
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen"
   }
 }

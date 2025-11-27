@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { fetchMenu } from '@/lib/api/menu';
+import { useDataMode } from '@/lib/store/useDataMode';
 import type { MenuItem } from '@restaurant/shared/src/schemas/menu';
 
 interface MenuState {
@@ -17,7 +18,9 @@ export const useMenuStore = create<MenuState>((set) => ({
   loadMenu: async () => {
     set({ loading: true, error: null });
     try {
-      const menu = await fetchMenu();
+      // Get current data mode from the store
+      const mode = useDataMode.getState().mode;
+      const menu = await fetchMenu(mode);
       set({ menu, loading: false });
     } catch (error) {
       set({

@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useOrderStore } from '@/lib/store/orderStore'
 import Drawer from '@/components/ui/Drawer'
 import OrderPanel from '@/components/order/OrderPanel'
+import { formatPrice } from '@/lib/utils/formatPrice'
 
 export default function FloatingCartButton() {
   const [open, setOpen] = useState(false)
@@ -35,7 +36,7 @@ export default function FloatingCartButton() {
 
         {/* Total Amount */}
         <span className="font-semibold">
-          ¥{(totalCents / 100).toFixed(2)}
+          {formatPrice(totalCents)}
         </span>
       </button>
 

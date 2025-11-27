@@ -15,20 +15,39 @@
     "empty": "Your cart is empty",
     "emptyDescription": "Add some delicious dishes to get started",
     "browseMenu": "Browse Menu",
-    "checkout": "Checkout",
     "clear": "Clear Cart",
     "total": "Total",
     "items": "{count} {count, plural, one {item} other {items}}"
   },
+  "cart": {
+    "placeOrder": "Place Order",
+    "addToOrder": "Add to Order"
+  },
+  "order": {
+    "activeOrder": "Active Order",
+    "locked": "Locked",
+    "timeRemaining": "{minutes}:{seconds} remaining",
+    "confirmed": "Confirmed",
+    "pending": "Pending",
+    "noModify": "Order locked - items cannot be modified",
+    "history": "Order History",
+    "orderPlaced": "Order placed successfully!",
+    "itemsAdded": "Items added to order!",
+    "autoConfirmed": "Order auto-confirmed"
+  },
   "mode": {
-    "online": "Online",
-    "offline": "Offline"
+    "local": "Local",
+    "server": "Server",
+    "bannerTitle": "Data Mode Selection",
+    "bannerDesc": "Due to free-tier server hosting limits, response may be slow. Local mode uses browser storage and offers the full feature experience.",
+    "selectionLabel": "Select data mode",
+    "settings": "Data mode settings"
   },
   "language": {
     "switch": "Language",
-    "en": "English",
-    "zh": "中文",
-    "de": "Deutsch",
+    "en": "EN",
+    "zh": "ZH",
+    "de": "DE",
     "select": "Select language"
   },
   "search": {
@@ -56,7 +75,13 @@
   },
   "nav": {
     "menu": "Menu",
-    "demoMode": "Demo Mode",
-    "basket": "Basket"
+    "basket": "Basket",
+    "showSettings": "Show data mode settings"
+  },
+  "common": {
+    "dismiss": "Dismiss",
+    "close": "Close",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
   }
 }

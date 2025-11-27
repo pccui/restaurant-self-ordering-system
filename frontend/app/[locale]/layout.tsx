@@ -6,6 +6,7 @@ import Navbar from '@/components/ui/Navbar'
 import ThemeProvider from '@/components/ui/ThemeProvider'
 import OrderPanel from '@/components/order/OrderPanel'
 import FloatingCartButton from '@/components/order/FloatingCartButton'
+import ModeBanner from '@/components/ModeBanner'
 import type { ReactNode } from 'react'
 
 const locales = ['en', 'zh', 'de'];
@@ -30,6 +31,8 @@ export default async function LocaleLayout({ children, params }: { children: Rea
       <body className='min-h-screen bg-gray-50'>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ThemeProvider>
+            {/* Mode Banner - Dismissible info about local/server mode */}
+            <ModeBanner />
             <Navbar />
             <div className="container flex gap-6">
               {/* Main Content Area */}
