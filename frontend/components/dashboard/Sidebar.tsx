@@ -17,7 +17,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout: logoutStore, isAdmin } = useAuthStore();
+  const { user, logout: logoutStore, isAdmin, _hasHydrated } = useAuthStore();
 
   const navItems = [
     {
@@ -26,12 +26,20 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
       icon: '📋',
       exact: true,
     },
-    ...(isAdmin() ? [{
-      href: `/${locale}/dashboard/users`,
-      label: t('users'),
-      icon: '👥',
-      exact: false,
-    }] : []),
+    ...(isAdmin() ? [
+      {
+        href: `/${locale}/dashboard/users`,
+        label: t('users'),
+        icon: '👥',
+        exact: false,
+      },
+      {
+        href: `/${locale}/dashboard/audit`,
+        label: t('auditLogs'),
+        icon: '📜',
+        exact: false,
+      },
+    ] : []),
   ];
 
   const isActive = (href: string, exact: boolean) => {
@@ -74,14 +82,14 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-600 dark:text-primary-400 font-semibold flex-shrink-0">
-              {user?.name?.charAt(0).toUpperCase() || 'U'}
+              {_hasHydrated && user?.name ? user.name.charAt(0).toUpperCase() : '·'}
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-medium text-gray-900 dark:text-white truncate">
-                {user?.name}
+                {_hasHydrated ? (user?.name || '...') : '...'}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">
-                {user?.role?.toLowerCase()}
+                {_hasHydrated ? (user?.role?.toLowerCase() || '') : ''}
               </p>
             </div>
           </div>

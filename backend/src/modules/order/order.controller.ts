@@ -1,9 +1,17 @@
-import { Controller, Post, Get, Patch, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Public } from '../../common/decorators/public.decorator';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+
+interface SafeUser {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+}
 
 @Controller('online/order')
 export class OrderController {
@@ -44,16 +52,43 @@ export class OrderController {
   async updateOrderStatus(
     @Param('id') id: string,
     @Body() dto: { status: string },
+    @CurrentUser() user: SafeUser,
   ) {
-    return this.orderService.updateOrderStatus(id, dto.status as any);
+    return this.orderService.updateOrderStatus(id, dto.status as any, user);
   }
 
   // Protected: Mark order as paid (WAITER, ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('WAITER', 'ADMIN')
   @Patch(':id/pay')
-  async markOrderAsPaid(@Param('id') id: string) {
-    return this.orderService.updateOrderStatus(id, 'paid');
+  async markOrderAsPaid(
+    @Param('id') id: string,
+    @CurrentUser() user: SafeUser,
+  ) {
+    return this.orderService.markOrderAsPaid(id, user);
+  }
+
+  // Protected: Full order update (ADMIN only)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Put(':id')
+  async updateOrder(
+    @Param('id') id: string,
+    @Body() dto: { items?: any[]; total?: number; tableId?: string; status?: string },
+    @CurrentUser() user: SafeUser,
+  ) {
+    return this.orderService.updateOrder(id, dto as any, user);
+  }
+
+  // Protected: Delete order (ADMIN only) - Soft delete
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Delete(':id')
+  async deleteOrder(
+    @Param('id') id: string,
+    @CurrentUser() user: SafeUser,
+  ) {
+    return this.orderService.deleteOrder(id, user);
   }
 
   @Public()

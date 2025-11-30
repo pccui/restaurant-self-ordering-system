@@ -1,6 +1,5 @@
 import { User } from '../store/authStore';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003';
+import { API_BASE } from '../config';
 
 interface LoginResponse {
   user: User;

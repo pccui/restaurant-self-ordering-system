@@ -1,6 +1,5 @@
 import { OrderStatus } from '../store/orderStore';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { API_BASE } from '../config';
 
 export interface DashboardOrder {
   id: string;
@@ -32,7 +31,7 @@ export async function getOrders(params?: GetOrdersParams): Promise<DashboardOrde
   if (params?.status) queryParams.set('status', params.status);
   if (params?.tableId) queryParams.set('tableId', params.tableId);
 
-  const url = `${API_BASE}/api/orders${queryParams.toString() ? `?${queryParams}` : ''}`;
+  const url = `${API_BASE}/api/online/order${queryParams.toString() ? `?${queryParams}` : ''}`;
 
   const res = await fetch(url, {
     credentials: 'include',
@@ -49,7 +48,7 @@ export async function getOrders(params?: GetOrdersParams): Promise<DashboardOrde
  * Get a single order by ID
  */
 export async function getOrder(id: string): Promise<DashboardOrder> {
-  const res = await fetch(`${API_BASE}/api/order/${id}`, {
+  const res = await fetch(`${API_BASE}/api/online/order/${id}`, {
     credentials: 'include',
   });
 
@@ -65,7 +64,7 @@ export async function getOrder(id: string): Promise<DashboardOrder> {
  * Only available to KITCHEN and ADMIN roles
  */
 export async function updateOrderStatus(id: string, status: OrderStatus): Promise<DashboardOrder> {
-  const res = await fetch(`${API_BASE}/api/order/${id}/status`, {
+  const res = await fetch(`${API_BASE}/api/online/order/${id}/status`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -88,4 +87,47 @@ export async function updateOrderStatus(id: string, status: OrderStatus): Promis
  */
 export async function markOrderAsPaid(id: string): Promise<DashboardOrder> {
   return updateOrderStatus(id, 'paid');
+}
+
+/**
+ * Delete order (soft delete)
+ * Only available to ADMIN role
+ */
+export async function deleteOrder(id: string): Promise<DashboardOrder> {
+  const res = await fetch(`${API_BASE}/api/online/order/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ message: 'Failed to delete order' }));
+    throw new Error(error.message);
+  }
+
+  return res.json();
+}
+
+/**
+ * Full order update
+ * Only available to ADMIN role
+ */
+export async function updateOrder(
+  id: string,
+  data: { items?: DashboardOrder['items']; total?: number; tableId?: string; status?: OrderStatus }
+): Promise<DashboardOrder> {
+  const res = await fetch(`${API_BASE}/api/online/order/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ message: 'Failed to update order' }));
+    throw new Error(error.message);
+  }
+
+  return res.json();
 }

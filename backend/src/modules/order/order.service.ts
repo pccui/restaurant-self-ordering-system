@@ -1,13 +1,21 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
 import { prisma } from '../../lib/prisma';
+import { AuditService } from '../audit/audit.service';
 
 // 5 minutes in milliseconds
 const EDIT_WINDOW_MS = 5 * 60 * 1000;
 
 type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'completed' | 'paid';
 
+interface SafeUser {
+  id: string;
+  email: string;
+}
+
 @Injectable()
 export class OrderService {
+  constructor(@Inject(AuditService) private readonly auditService: AuditService) {}
+
   async createOrder(dto: any) {
     const order = await prisma.order.create({
       data: {
@@ -18,6 +26,15 @@ export class OrderService {
         metadata: dto.metadata || {},
       },
     });
+
+    // Audit log: order created (no user context for public endpoint)
+    await this.auditService.log({
+      action: 'CREATE',
+      entityType: 'Order',
+      entityId: order.id,
+      changes: { after: order as unknown as Record<string, unknown> },
+    });
+
     return order;
   }
 
@@ -30,18 +47,50 @@ export class OrderService {
   }
 
   async getOrderByTable(tableId: string) {
-    // Get the most recent active order for this table
+    // Get the most recent active order for this table (exclude deleted)
     const order = await prisma.order.findFirst({
       where: {
         tableId,
         status: { notIn: ['paid'] },
+        deletedAt: null,
       },
       orderBy: { createdAt: 'desc' },
     });
-    return order;
+    
+    if (!order) return null;
+    
+    // Enrich order items with menu data
+    const menuItems = await prisma.menuItem.findMany();
+    const menuMap = new Map(menuItems.map(m => [m.id, m]));
+    
+    const rawItems = order.items as Array<{ menuItemId?: string; id?: string; qty: number; name?: string; priceCents?: number; imageUrl?: string }>;
+    const enrichedItems = rawItems.map(item => {
+      const itemId = item.menuItemId || item.id;
+      const menuItem = itemId ? menuMap.get(itemId) : null;
+      const translations = menuItem?.translations as Record<string, { name?: string }> | undefined;
+      const name = translations?.en?.name || item.name || `Item ${itemId}`;
+      
+      return {
+        id: itemId,
+        name,
+        priceCents: menuItem?.priceCents || item.priceCents || 0,
+        qty: item.qty,
+        imageUrl: menuItem?.thumbnailUrl || menuItem?.imageUrl || item.imageUrl || undefined,
+      };
+    });
+    
+    return {
+      id: order.id,
+      tableId: order.tableId,
+      items: enrichedItems,
+      total: order.total,
+      status: order.status,
+      createdAt: order.createdAt.toISOString(),
+      updatedAt: order.updatedAt.toISOString(),
+    };
   }
 
-  async updateOrderItems(id: string, items: any[], total: number) {
+  async updateOrderItems(id: string, items: any[], total: number, user?: SafeUser) {
     const order = await this.getOrder(id);
 
     // Check if within edit window
@@ -53,13 +102,25 @@ export class OrderService {
       throw new BadRequestException('Cannot modify order after confirmation');
     }
 
-    return prisma.order.update({
+    const before = { items: order.items, total: order.total };
+    const updated = await prisma.order.update({
       where: { id },
       data: { items, total },
     });
+
+    // Audit log: order items updated
+    await this.auditService.log({
+      action: 'UPDATE',
+      entityType: 'Order',
+      entityId: id,
+      user: user ? { id: user.id, email: user.email } : undefined,
+      changes: { before, after: { items, total } },
+    });
+
+    return updated;
   }
 
-  async updateOrderStatus(id: string, status: OrderStatus) {
+  async updateOrderStatus(id: string, status: OrderStatus, user?: SafeUser) {
     const order = await this.getOrder(id);
 
     // Validate status transitions
@@ -82,10 +143,114 @@ export class OrderService {
       data.lockedAt = new Date();
     }
 
-    return prisma.order.update({
+    const updated = await prisma.order.update({
       where: { id },
       data,
     });
+
+    // Audit log: status changed
+    await this.auditService.log({
+      action: 'STATUS_CHANGE',
+      entityType: 'Order',
+      entityId: id,
+      user: user ? { id: user.id, email: user.email } : undefined,
+      changes: {
+        before: { status: order.status },
+        after: { status: updated.status },
+      },
+    });
+
+    return updated;
+  }
+
+  async markOrderAsPaid(id: string, user: SafeUser) {
+    const order = await this.getOrder(id);
+
+    if (order.status !== 'completed') {
+      throw new BadRequestException(
+        `Cannot mark order as paid from status ${order.status}`,
+      );
+    }
+
+    const updated = await prisma.order.update({
+      where: { id },
+      data: { status: 'paid' },
+    });
+
+    // Audit log: order paid
+    await this.auditService.log({
+      action: 'PAY',
+      entityType: 'Order',
+      entityId: id,
+      user: { id: user.id, email: user.email },
+      changes: {
+        before: { status: order.status },
+        after: { status: 'paid' },
+      },
+    });
+
+    return updated;
+  }
+
+  async deleteOrder(id: string, user: SafeUser) {
+    const order = await this.getOrder(id);
+
+    // Already deleted
+    if (order.deletedAt) {
+      throw new BadRequestException('Order already deleted');
+    }
+
+    // Cannot delete paid orders
+    if (order.status === 'paid') {
+      throw new BadRequestException('Cannot delete paid orders');
+    }
+
+    const deleted = await prisma.order.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+
+    // Audit log: order deleted
+    await this.auditService.log({
+      action: 'DELETE',
+      entityType: 'Order',
+      entityId: id,
+      user: { id: user.id, email: user.email },
+      changes: { before: order as unknown as Record<string, unknown> },
+    });
+
+    return deleted;
+  }
+
+  async updateOrder(
+    id: string,
+    dto: { items?: any[]; total?: number; tableId?: string; status?: OrderStatus },
+    user: SafeUser
+  ) {
+    const order = await this.getOrder(id);
+    const before = { ...order } as unknown as Record<string, unknown>;
+
+    const data: any = {};
+    if (dto.items !== undefined) data.items = dto.items;
+    if (dto.total !== undefined) data.total = dto.total;
+    if (dto.tableId !== undefined) data.tableId = dto.tableId;
+    if (dto.status !== undefined) data.status = dto.status;
+
+    const updated = await prisma.order.update({
+      where: { id },
+      data,
+    });
+
+    // Audit log: full order update
+    await this.auditService.log({
+      action: 'UPDATE',
+      entityType: 'Order',
+      entityId: id,
+      user: { id: user.id, email: user.email },
+      changes: { before, after: updated as unknown as Record<string, unknown> },
+    });
+
+    return updated;
   }
 
   async confirmOrderIfExpired(id: string) {
@@ -142,15 +307,28 @@ export class OrderService {
             metadata: o.metadata || {},
           },
         });
+
+        // Audit log for synced order
+        await this.auditService.log({
+          action: 'CREATE',
+          entityType: 'Order',
+          entityId: created.id,
+          changes: { after: created as unknown as Record<string, unknown> },
+          metadata: { source: 'sync' },
+        });
+
         results.push(created);
       }
     }
     return results;
   }
 
-  // Dashboard: Get all orders with optional filters
+  // Dashboard: Get all orders with optional filters (exclude deleted)
+  // Enriches order items with menu data (name, price, image)
   async getAllOrders(filters?: { status?: string; tableId?: string }) {
-    const where: any = {};
+    const where: any = {
+      deletedAt: null, // Exclude soft-deleted orders
+    };
 
     if (filters?.status) {
       where.status = filters.status;
@@ -164,6 +342,42 @@ export class OrderService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return orders;
+    // Get all menu items for enrichment
+    const menuItems = await prisma.menuItem.findMany();
+    const menuMap = new Map(menuItems.map(m => [m.id, m]));
+
+    // Enrich each order's items with menu data
+    const enrichedOrders = orders.map(order => {
+      const rawItems = order.items as Array<{ menuItemId?: string; id?: string; qty: number; name?: string; priceCents?: number; imageUrl?: string }>;
+      const enrichedItems = rawItems.map(item => {
+        // Handle both formats: { menuItemId, qty } and { id, qty, name, priceCents, imageUrl }
+        const itemId = item.menuItemId || item.id;
+        const menuItem = itemId ? menuMap.get(itemId) : null;
+        
+        // Get English name as fallback
+        const translations = menuItem?.translations as Record<string, { name?: string }> | undefined;
+        const name = translations?.en?.name || item.name || `Item ${itemId}`;
+        
+        return {
+          id: itemId,
+          name,
+          priceCents: menuItem?.priceCents || item.priceCents || 0,
+          qty: item.qty,
+          imageUrl: menuItem?.thumbnailUrl || menuItem?.imageUrl || item.imageUrl || undefined,
+        };
+      });
+
+      return {
+        id: order.id,
+        tableId: order.tableId,
+        items: enrichedItems,
+        total: order.total,
+        status: order.status,
+        placedAt: order.createdAt.toISOString(),
+        updatedAt: order.updatedAt.toISOString(),
+      };
+    });
+
+    return enrichedOrders;
   }
 }

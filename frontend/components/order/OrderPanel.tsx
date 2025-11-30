@@ -23,6 +23,7 @@ export default function OrderPanel() {
 
   const activeOrder = useOrderStore((s) => s.activeOrder)
   const setTableId = useOrderStore((s) => s.setTableId)
+  const fetchOrderFromServer = useOrderStore((s) => s.fetchOrderFromServer)
   const remove = useOrderStore((s) => s.removeItem)
   const updateQty = useOrderStore((s) => s.updateQty)
   const clearCart = useOrderStore((s) => s.clearCart)
@@ -37,10 +38,15 @@ export default function OrderPanel() {
   const { refetch: syncOrderStatus } = useOrderSync()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Set tableId from URL on mount
+  // Set tableId from URL on mount and fetch order from server
   useEffect(() => {
     setTableId(tableId)
-  }, [tableId, setTableId])
+    
+    // In server mode, also try to fetch existing order from server
+    if (mode === 'server') {
+      fetchOrderFromServer(tableId)
+    }
+  }, [tableId, setTableId, fetchOrderFromServer, mode])
 
   // Get thumbnail for an item
   const getThumbnail = (itemId: string) => {

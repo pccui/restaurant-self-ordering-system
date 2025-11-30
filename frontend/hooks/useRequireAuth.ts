@@ -30,11 +30,16 @@ export function useRequireAuth(options: UseRequireAuthOptions = {}) {
   const locale = useLocale();
   const pathname = usePathname();
 
-  const { user, isAuthenticated, isLoading, setUser, setLoading, hasRole } = useAuthStore();
+  const { user, isAuthenticated, isLoading, setUser, setLoading, hasRole, _hasHydrated } = useAuthStore();
 
   useEffect(() => {
+    // Wait for store to hydrate from localStorage
+    if (!_hasHydrated) {
+      return;
+    }
+
     async function checkAuthentication() {
-      // If already have user data, just check roles
+      // If already have user data from localStorage, just check roles
       if (isAuthenticated && user) {
         // Check role requirement
         if (requiredRoles && !hasRole(requiredRoles)) {
@@ -45,7 +50,7 @@ export function useRequireAuth(options: UseRequireAuthOptions = {}) {
         return;
       }
 
-      // Check with server
+      // Check with server (for session cookie auth)
       setLoading(true);
       try {
         const serverUser = await getMe();
@@ -71,12 +76,12 @@ export function useRequireAuth(options: UseRequireAuthOptions = {}) {
     }
 
     checkAuthentication();
-  }, [pathname]); // Re-check when pathname changes
+  }, [pathname, _hasHydrated]); // Re-check when pathname changes or hydration completes
 
   return {
     user,
     isAuthenticated,
-    isLoading,
+    isLoading: isLoading || !_hasHydrated,
     isAdmin: user?.role === 'ADMIN',
     isWaiter: user?.role === 'WAITER',
     isKitchen: user?.role === 'KITCHEN',

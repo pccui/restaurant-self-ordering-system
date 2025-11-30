@@ -15,7 +15,7 @@ interface DataModeState {
 export const useDataMode = create<DataModeState>()(
   persist(
     (set) => ({
-      mode: 'local', // Default to local mode for better demo experience
+      mode: 'server', // Default to server mode so orders sync to database
       setMode: (mode) => set({ mode }),
       bannerDismissed: false,
       dismissBanner: () => set({ bannerDismissed: true }),

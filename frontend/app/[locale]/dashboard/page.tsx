@@ -3,11 +3,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/lib/store/authStore';
-import { getOrders, updateOrderStatus, DashboardOrder } from '@/lib/api/orders';
+import { getOrders, updateOrderStatus, deleteOrder, updateOrder, DashboardOrder } from '@/lib/api/orders';
 import { OrderStatus } from '@/lib/store/orderStore';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import Badge from '@/components/ui/Badge';
+import Dialog from '@/components/ui/Dialog';
 
 const STATUS_FILTERS: (OrderStatus | 'all')[] = ['all', 'pending', 'confirmed', 'preparing', 'completed', 'paid'];
 
@@ -21,13 +21,24 @@ const STATUS_COLORS: Record<OrderStatus, string> = {
 
 export default function OrdersPage() {
   const t = useTranslations('dashboard');
-  const { user, isAdmin, isKitchen, isWaiter } = useAuthStore();
+  const { isAdmin, isKitchen, isWaiter } = useAuthStore();
 
   const [orders, setOrders] = useState<DashboardOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
   const [tableFilter, setTableFilter] = useState('');
+
+  // Delete confirmation dialog
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<DashboardOrder | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  // Edit modal
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [orderToEdit, setOrderToEdit] = useState<DashboardOrder | null>(null);
+  const [editedItems, setEditedItems] = useState<DashboardOrder['items']>([]);
+  const [saving, setSaving] = useState(false);
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -57,16 +68,81 @@ export default function OrdersPage() {
   async function handleStatusChange(orderId: string, newStatus: OrderStatus) {
     try {
       await updateOrderStatus(orderId, newStatus);
-      // Refresh orders
       fetchOrders();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update status');
     }
   }
 
+  // Delete handlers
+  function openDeleteDialog(order: DashboardOrder) {
+    setOrderToDelete(order);
+    setDeleteDialogOpen(true);
+  }
+
+  async function handleDelete() {
+    if (!orderToDelete) return;
+
+    try {
+      setDeleting(true);
+      await deleteOrder(orderToDelete.id);
+      setDeleteDialogOpen(false);
+      setOrderToDelete(null);
+      fetchOrders();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete order');
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  // Edit handlers
+  function openEditDialog(order: DashboardOrder) {
+    setOrderToEdit(order);
+    setEditedItems(JSON.parse(JSON.stringify(order.items))); // Deep copy
+    setEditDialogOpen(true);
+  }
+
+  function handleItemQtyChange(itemIndex: number, newQty: number) {
+    setEditedItems(prev => {
+      const updated = [...prev];
+      if (newQty <= 0) {
+        // Remove item
+        updated.splice(itemIndex, 1);
+      } else {
+        updated[itemIndex] = { ...updated[itemIndex], qty: newQty };
+      }
+      return updated;
+    });
+  }
+
+  async function handleSaveEdit() {
+    if (!orderToEdit) return;
+
+    try {
+      setSaving(true);
+      const newTotal = editedItems.reduce((sum, item) => sum + item.priceCents * item.qty, 0);
+      await updateOrder(orderToEdit.id, { items: editedItems, total: newTotal });
+      setEditDialogOpen(false);
+      setOrderToEdit(null);
+      fetchOrders();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update order');
+    } finally {
+      setSaving(false);
+    }
+  }
+
   function formatDate(dateStr: string) {
+    if (!dateStr) return '';
     const date = new Date(dateStr);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    if (isNaN(date.getTime())) return 'Invalid Date';
+    return date.toLocaleString([], { 
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
   }
 
   function formatCurrency(cents: number) {
@@ -95,6 +171,18 @@ export default function OrdersPage() {
 
     return buttons;
   }
+
+  // Check if order can be edited (only pending orders within edit window)
+  function canEditOrder(order: DashboardOrder): boolean {
+    return order.status === 'pending';
+  }
+
+  // Check if order can be deleted (admin only, not paid)
+  function canDeleteOrder(order: DashboardOrder): boolean {
+    return isAdmin() && order.status !== 'paid';
+  }
+
+  const editedTotal = editedItems.reduce((sum, item) => sum + item.priceCents * item.qty, 0);
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -200,24 +288,151 @@ export default function OrdersPage() {
               </ul>
             </div>
 
-            {/* Status Actions */}
-            {getNextStatusButtons(order).length > 0 && (
-              <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-                {getNextStatusButtons(order).map((btn) => (
-                  <Button
-                    key={btn.status}
-                    size="sm"
-                    variant={btn.status === 'paid' ? 'primary' : 'default'}
-                    onClick={() => handleStatusChange(order.id, btn.status)}
-                  >
-                    {btn.label}
-                  </Button>
-                ))}
-              </div>
-            )}
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+              {/* Status transition buttons */}
+              {getNextStatusButtons(order).map((btn) => (
+                <Button
+                  key={btn.status}
+                  size="sm"
+                  variant={btn.status === 'paid' ? 'primary' : 'default'}
+                  onClick={() => handleStatusChange(order.id, btn.status)}
+                >
+                  {btn.label}
+                </Button>
+              ))}
+
+              {/* Edit button - shown for pending orders to all staff */}
+              {canEditOrder(order) && (
+                <Button
+                  size="sm"
+                  variant="default"
+                  onClick={() => openEditDialog(order)}
+                >
+                  {t('editOrder')}
+                </Button>
+              )}
+
+              {/* Delete button - shown only to admin, not for paid orders */}
+              {canDeleteOrder(order) && (
+                <Button
+                  size="sm"
+                  variant="danger"
+                  onClick={() => openDeleteDialog(order)}
+                >
+                  {t('deleteOrder')}
+                </Button>
+              )}
+            </div>
           </Card>
         ))}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        title={t('confirmDeleteTitle')}
+      >
+        <div className="space-y-4">
+          <p className="text-gray-600 dark:text-gray-400">
+            {t('confirmDeleteMessage', { table: orderToDelete?.tableId, total: orderToDelete ? formatCurrency(orderToDelete.total) : '' })}
+          </p>
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="default"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={deleting}
+            >
+              {t('cancel')}
+            </Button>
+            <Button
+              variant="danger"
+              onClick={handleDelete}
+              disabled={deleting}
+            >
+              {deleting ? t('deleting') : t('delete')}
+            </Button>
+          </div>
+        </div>
+      </Dialog>
+
+      {/* Edit Order Dialog */}
+      <Dialog
+        open={editDialogOpen}
+        onClose={() => setEditDialogOpen(false)}
+        title={t('editOrderTitle')}
+      >
+        <div className="space-y-4">
+          {/* Order Info */}
+          {orderToEdit && (
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {t('table')} {orderToEdit.tableId}
+            </p>
+          )}
+
+          {/* Editable Items */}
+          <div className="space-y-3 max-h-64 overflow-y-auto">
+            {editedItems.map((item, idx) => (
+              <div key={idx} className="flex items-center justify-between gap-3 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <span className="text-sm text-gray-700 dark:text-gray-300 flex-1">
+                  {item.name}
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleItemQtyChange(idx, item.qty - 1)}
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+                  >
+                    −
+                  </button>
+                  <span className="w-8 text-center text-sm font-medium">{item.qty}</span>
+                  <button
+                    onClick={() => handleItemQtyChange(idx, item.qty + 1)}
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+                  >
+                    +
+                  </button>
+                  <span className="text-sm text-gray-500 dark:text-gray-400 w-16 text-right">
+                    {formatCurrency(item.priceCents * item.qty)}
+                  </span>
+                </div>
+              </div>
+            ))}
+
+            {editedItems.length === 0 && (
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+                {t('noItems')}
+              </p>
+            )}
+          </div>
+
+          {/* New Total */}
+          <div className="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-700">
+            <span className="font-medium text-gray-900 dark:text-white">{t('newTotal')}</span>
+            <span className="font-bold text-lg text-gray-900 dark:text-white">
+              {formatCurrency(editedTotal)}
+            </span>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="default"
+              onClick={() => setEditDialogOpen(false)}
+              disabled={saving}
+            >
+              {t('cancel')}
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleSaveEdit}
+              disabled={saving || editedItems.length === 0}
+            >
+              {saving ? t('saving') : t('saveChanges')}
+            </Button>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 }
