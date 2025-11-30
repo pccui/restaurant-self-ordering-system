@@ -4,7 +4,7 @@
 
 ### Purpose
 
-The Restaurant Self-Ordering System is a full-stack portfolio project demonstrating a modern, multilingual, scalable, and offline-capable food ordering experience.
+The Restaurant Self-Ordering System is a full-stack portfolio project demonstrating a modern, multilingual, scalable food ordering experience.
 
 **Its goals:**
 

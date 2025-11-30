@@ -1,9 +1,8 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { readFileSync } from 'fs';
 import path from 'path';
 
 async function main() {
-  const prisma = new PrismaClient();
   const menuPath = path.resolve(process.cwd(), '../frontend/public/menu.json');
   let data: any[] = [];
   try {

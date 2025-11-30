@@ -1,7 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../lib/prisma';
 
 // 5 minutes in milliseconds
 const EDIT_WINDOW_MS = 5 * 60 * 1000;
@@ -148,5 +146,24 @@ export class OrderService {
       }
     }
     return results;
+  }
+
+  // Dashboard: Get all orders with optional filters
+  async getAllOrders(filters?: { status?: string; tableId?: string }) {
+    const where: any = {};
+
+    if (filters?.status) {
+      where.status = filters.status;
+    }
+    if (filters?.tableId) {
+      where.tableId = filters.tableId;
+    }
+
+    const orders = await prisma.order.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return orders;
   }
 }
