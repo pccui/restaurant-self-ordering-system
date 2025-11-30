@@ -106,8 +106,8 @@ export default function OrdersPage() {
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3">
-          {/* Status Filter - Horizontal scroll on mobile */}
-          <div className="flex gap-1.5 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap -mx-4 px-4 sm:mx-0 sm:px-0">
+          {/* Status Filter - Wrapped on mobile */}
+          <div className="flex flex-wrap gap-1.5">
             {STATUS_FILTERS.map((status) => (
               <button
                 key={status}
