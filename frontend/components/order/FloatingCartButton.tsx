@@ -7,9 +7,10 @@ import { formatPrice } from '@/lib/utils/formatPrice'
 
 export default function FloatingCartButton() {
   const [open, setOpen] = useState(false)
-  const items = useOrderStore((s) => s.items)
+  const activeOrder = useOrderStore((s) => s.activeOrder)
   const totalCents = useOrderStore((s) => s.totalCents)()
 
+  const items = activeOrder?.items || []
   const itemCount = items.reduce((sum, item) => sum + item.qty, 0)
 
   // Don't show if cart is empty

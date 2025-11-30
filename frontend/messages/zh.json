@@ -24,11 +24,18 @@
     "addToOrder": "添加到订单"
   },
   "order": {
+    "yourOrder": "您的订单",
     "activeOrder": "当前订单",
+    "editable": "可编辑",
     "locked": "已锁定",
     "timeRemaining": "剩余 {minutes}:{seconds}",
     "confirmed": "已确认",
     "pending": "待处理",
+    "preparing": "准备中",
+    "completed": "已完成",
+    "paid": "已支付",
+    "editWindowHint": "您仍可以编辑订单。计时器结束后将锁定更改。",
+    "confirmedMessage": "您的订单已确认，正在准备中。",
     "noModify": "订单已锁定 - 无法修改",
     "history": "历史订单",
     "orderPlaced": "下单成功！",

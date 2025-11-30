@@ -24,11 +24,18 @@
     "addToOrder": "Add to Order"
   },
   "order": {
+    "yourOrder": "Your Order",
     "activeOrder": "Active Order",
+    "editable": "Editable",
     "locked": "Locked",
     "timeRemaining": "{minutes}:{seconds} remaining",
     "confirmed": "Confirmed",
     "pending": "Pending",
+    "preparing": "Preparing",
+    "completed": "Ready",
+    "paid": "Paid",
+    "editWindowHint": "You can still edit your order. Changes will be locked when timer expires.",
+    "confirmedMessage": "Your order has been confirmed and is being prepared.",
     "noModify": "Order locked - items cannot be modified",
     "history": "Order History",
     "orderPlaced": "Order placed successfully!",

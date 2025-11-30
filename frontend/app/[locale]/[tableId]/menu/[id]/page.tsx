@@ -5,7 +5,7 @@ import MenuDetail from '@/components/menu/MenuDetail'
 export default async function MenuItemPage({
   params
 }: {
-  params: Promise<{ locale: string; id: string }>
+  params: Promise<{ locale: string; tableId: string; id: string }>
 }) {
   const { id } = await params
 
@@ -19,18 +19,11 @@ export default async function MenuItemPage({
   return <MenuDetail item={item} />
 }
 
-// Generate static params for all menu items
-export async function generateStaticParams() {
-  return menuData.map((item) => ({
-    id: item.id,
-  }))
-}
-
 // Generate metadata for SEO
 export async function generateMetadata({
   params
 }: {
-  params: Promise<{ locale: string; id: string }>
+  params: Promise<{ locale: string; tableId: string; id: string }>
 }) {
   const { locale, id } = await params
   const item = menuData.find((menuItem) => menuItem.id === id)

@@ -6,46 +6,49 @@ interface OrderTimerState {
   timeRemaining: number // milliseconds
   minutes: number
   seconds: number
-  isLocked: boolean
+  isEditable: boolean // within 5-min edit window
   isExpired: boolean
 }
 
 /**
- * Hook to track order lock timer (10 minute window)
+ * Hook to track order edit timer (5 minute window)
  * Auto-confirms order when timer expires
  */
 export function useOrderTimer(): OrderTimerState {
   const activeOrder = useOrderStore((s) => s.activeOrder)
   const confirmOrder = useOrderStore((s) => s.confirmOrder)
-  const getOrderTimeRemaining = useOrderStore((s) => s.getOrderTimeRemaining)
-  const isOrderLocked = useOrderStore((s) => s.isOrderLocked)
+  const getEditTimeRemaining = useOrderStore((s) => s.getEditTimeRemaining)
+  const isWithinEditWindow = useOrderStore((s) => s.isWithinEditWindow)
+  const isOrderPlaced = useOrderStore((s) => s.isOrderPlaced)
 
-  const [timeRemaining, setTimeRemaining] = useState(() => getOrderTimeRemaining())
+  const [timeRemaining, setTimeRemaining] = useState(() =>
+    activeOrder?.placedAt ? getEditTimeRemaining() : 0
+  )
 
   // Calculate minutes and seconds
   const totalSeconds = Math.floor(timeRemaining / 1000)
   const minutes = Math.floor(totalSeconds / 60)
   const seconds = totalSeconds % 60
 
-  const isLocked = timeRemaining > 0 && !!activeOrder
-  const isExpired = timeRemaining === 0 && !!activeOrder
+  const isEditable = isOrderPlaced() && isWithinEditWindow()
+  const isExpired = isOrderPlaced() && timeRemaining === 0
 
   // Auto-confirm when timer expires
   const handleExpire = useCallback(() => {
-    if (activeOrder && getOrderTimeRemaining() <= 0) {
+    if (activeOrder && activeOrder.placedAt > 0 && getEditTimeRemaining() <= 0) {
       confirmOrder()
     }
-  }, [activeOrder, confirmOrder, getOrderTimeRemaining])
+  }, [activeOrder, confirmOrder, getEditTimeRemaining])
 
   useEffect(() => {
-    if (!activeOrder) {
+    if (!activeOrder || activeOrder.placedAt === 0) {
       setTimeRemaining(0)
       return
     }
 
     // Update timer every second
     const interval = setInterval(() => {
-      const remaining = getOrderTimeRemaining()
+      const remaining = getEditTimeRemaining()
       setTimeRemaining(remaining)
 
       // Auto-confirm when expired
@@ -56,16 +59,16 @@ export function useOrderTimer(): OrderTimerState {
     }, 1000)
 
     // Initial check
-    setTimeRemaining(getOrderTimeRemaining())
+    setTimeRemaining(getEditTimeRemaining())
 
     return () => clearInterval(interval)
-  }, [activeOrder, getOrderTimeRemaining, handleExpire])
+  }, [activeOrder, getEditTimeRemaining, handleExpire])
 
   return {
     timeRemaining,
     minutes,
     seconds,
-    isLocked,
+    isEditable,
     isExpired,
   }
 }

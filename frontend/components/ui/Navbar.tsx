@@ -13,7 +13,8 @@ export default function Navbar() {
   const locale = useLocale()
   const t = useTranslations('nav')
   const [open, setOpen] = useState(false)
-  const items = useOrderStore((s) => s.items)
+  const activeOrder = useOrderStore((s) => s.activeOrder)
+  const items = activeOrder?.items || []
   const itemCount = items.reduce((sum, item) => sum + item.qty, 0)
   const { bannerDismissed, showBanner } = useDataMode()
 

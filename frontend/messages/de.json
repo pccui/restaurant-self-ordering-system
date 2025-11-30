@@ -24,11 +24,18 @@
     "addToOrder": "Zur Bestellung hinzufügen"
   },
   "order": {
+    "yourOrder": "Ihre Bestellung",
     "activeOrder": "Aktive Bestellung",
+    "editable": "Bearbeitbar",
     "locked": "Gesperrt",
     "timeRemaining": "{minutes}:{seconds} verbleibend",
     "confirmed": "Bestätigt",
     "pending": "Ausstehend",
+    "preparing": "Wird zubereitet",
+    "completed": "Fertig",
+    "paid": "Bezahlt",
+    "editWindowHint": "Sie können Ihre Bestellung noch bearbeiten. Änderungen werden gesperrt, wenn der Timer abläuft.",
+    "confirmedMessage": "Ihre Bestellung wurde bestätigt und wird zubereitet.",
     "noModify": "Bestellung gesperrt - Artikel können nicht geändert werden",
     "history": "Bestellverlauf",
     "orderPlaced": "Bestellung erfolgreich aufgegeben!",
