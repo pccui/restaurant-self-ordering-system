@@ -104,6 +104,15 @@ backend/src/modules/
 - `POST /api/online/orders/sync` accepts queued offline orders.
 - Backend returns authoritative order IDs.
 
+
+### 4.4 Security & CORS
+- **CORS Configuration**:
+  - Implemented via NestJS `app.enableCors()`.
+  - Development: Allows all origins.
+  - Production: Restricts to `FRONTEND_URL`.
+  - Allowed methods: GET, POST, PUT, DELETE, PATCH, OPTIONS.
+  - Credentials allowed.
+
 ---
 
 ## 5. Frontend Architecture

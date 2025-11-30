@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
-import cors from 'cors';
+
 import { AppModule } from './app.module';
 import { env } from './config/env';
 
@@ -11,7 +11,7 @@ async function bootstrap() {
   app.use(cookieParser());
 
   // CORS configuration
-  const corsOptions = {
+  app.enableCors({
     origin: process.env.NODE_ENV === 'production'
       ? process.env.FRONTEND_URL
       : true, // Allow all origins in development
@@ -20,12 +20,7 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization'],
     preflightContinue: false,
     optionsSuccessStatus: 204
-  };
-
-  app.use(cors(corsOptions));
-
-  // Handle preflight requests explicitly
-  app.options('*', cors(corsOptions));
+  });
 
   app.setGlobalPrefix('api');
   await app.listen(env.PORT);
