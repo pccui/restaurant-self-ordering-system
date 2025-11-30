@@ -8,7 +8,12 @@
     "dishes": "{count} 道菜",
     "tasteCharacteristics": "口味特点",
     "ingredients": "食材",
-    "addToCart": "加入购物车"
+    "addToCart": "加入购物车",
+    "browsingMode": "您正在浏览菜单。请输入桌号以下单。",
+    "enterTableId": "输入桌号 →",
+    "enterTableTitle": "输入桌号",
+    "enterTableDescription": "请输入您的桌号以继续下单。",
+    "tableIdPlaceholder": "例如：T01, A5"
   },
   "basket": {
     "title": "购物车",

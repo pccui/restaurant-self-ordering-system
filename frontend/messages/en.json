@@ -8,7 +8,12 @@
     "dishes": "{count} {count, plural, one {dish} other {dishes}}",
     "tasteCharacteristics": "Taste Characteristics",
     "ingredients": "Ingredients",
-    "addToCart": "Add to Cart"
+    "addToCart": "Add to Cart",
+    "browsingMode": "You are browsing the menu. Enter a table number to place an order.",
+    "enterTableId": "Enter Table Number →",
+    "enterTableTitle": "Enter Table Number",
+    "enterTableDescription": "Please enter your table number to proceed with ordering.",
+    "tableIdPlaceholder": "e.g., T01, A5"
   },
   "basket": {
     "title": "Your Cart",

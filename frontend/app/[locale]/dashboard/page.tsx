@@ -97,23 +97,23 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+      <div className="flex flex-col gap-4">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
           {t('orders')}
         </h2>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-2">
-          {/* Status Filter */}
-          <div className="flex gap-1 flex-wrap">
+        <div className="flex flex-col sm:flex-row gap-3">
+          {/* Status Filter - Horizontal scroll on mobile */}
+          <div className="flex gap-1.5 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap -mx-4 px-4 sm:mx-0 sm:px-0">
             {STATUS_FILTERS.map((status) => (
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
                 className={`
-                  px-3 py-1.5 text-sm rounded-lg transition-colors
+                  px-3 py-1.5 text-sm rounded-lg transition-colors whitespace-nowrap flex-shrink-0
                   ${statusFilter === status
                     ? 'bg-primary-600 text-white'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
@@ -131,7 +131,7 @@ export default function OrdersPage() {
             placeholder={t('filterTable')}
             value={tableFilter}
             onChange={(e) => setTableFilter(e.target.value)}
-            className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg
+            className="w-full sm:w-auto px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg
                      bg-white dark:bg-gray-800 text-gray-900 dark:text-white
                      focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
@@ -161,9 +161,9 @@ export default function OrdersPage() {
       )}
 
       {/* Orders Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {orders.map((order) => (
-          <Card key={order.id} className="p-4">
+          <Card key={order.id} className="p-3 sm:p-4">
             {/* Order Header */}
             <div className="flex items-start justify-between mb-3">
               <div>

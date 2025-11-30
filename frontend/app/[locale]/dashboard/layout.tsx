@@ -1,12 +1,13 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import Sidebar from '@/components/dashboard/Sidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { user, isLoading, isAuthenticated } = useRequireAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Show loading state while checking authentication
   if (isLoading || !isAuthenticated) {
@@ -23,14 +24,20 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Dashboard Header */}
-      <DashboardHeader user={user} />
+      <DashboardHeader
+        user={user}
+        onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
+      />
 
       <div className="flex">
-        {/* Sidebar */}
-        <Sidebar />
+        {/* Sidebar - responsive with mobile drawer */}
+        <Sidebar
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
 
         {/* Main Content */}
-        <main className="flex-1 p-6 lg:p-8">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-h-[calc(100vh-56px)] sm:min-h-[calc(100vh-64px)]">
           {children}
         </main>
       </div>

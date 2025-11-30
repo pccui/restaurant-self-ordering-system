@@ -2,10 +2,10 @@ import '../globals.css'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
-import Navbar from '@/components/ui/Navbar'
+import NavbarWrapper from '@/components/ui/NavbarWrapper'
+import MainContentWrapper from '@/components/ui/MainContentWrapper'
 import ThemeProvider from '@/components/ui/ThemeProvider'
-import OrderPanel from '@/components/order/OrderPanel'
-import FloatingCartButton from '@/components/order/FloatingCartButton'
+import { CartSidebar, CartFloatingButton } from '@/components/order/CartWrapper'
 import ModeBanner from '@/components/ModeBanner'
 import type { ReactNode } from 'react'
 
@@ -28,26 +28,22 @@ export default async function LocaleLayout({ children, params }: { children: Rea
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <body className='min-h-screen bg-gray-50'>
+      <body className='min-h-screen bg-gray-50 dark:bg-gray-900'>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ThemeProvider>
             {/* Mode Banner - Dismissible info about local/server mode */}
             <ModeBanner />
-            <Navbar />
-            <div className="container flex gap-6">
-              {/* Main Content Area */}
-              <main className="flex-1 min-w-0 py-4">{children}</main>
 
-              {/* Persistent Cart Sidebar - Hidden on mobile */}
-              <aside className="hidden md:block w-80 flex-shrink-0 py-4">
-                <div className="sticky top-20">
-                  <OrderPanel />
-                </div>
-              </aside>
-            </div>
+            {/* Main Navbar - Hidden on dashboard (has its own header) */}
+            <NavbarWrapper />
 
-            {/* Floating Cart Button - Visible on mobile only */}
-            <FloatingCartButton />
+            {/* Main Content - Conditional layout based on route */}
+            <MainContentWrapper cartSidebar={<CartSidebar />}>
+              {children}
+            </MainContentWrapper>
+
+            {/* Floating Cart Button - Hidden on dashboard/login */}
+            <CartFloatingButton />
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>

@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
+import { usePathname } from 'next/navigation'
 import LanguageToggle from '@/components/LanguageToggle'
 import ThemeToggle from './ThemeToggle'
 import { useState } from 'react'
@@ -9,14 +10,24 @@ import OrderPanel from '@/components/order/OrderPanel'
 import { useOrderStore } from '@/lib/store/orderStore'
 import { useDataMode } from '@/lib/store/useDataMode'
 
+// Routes where basket should NOT be displayed
+const EXCLUDED_ROUTES = ['/dashboard', '/login']
+
+function shouldHideBasket(pathname: string): boolean {
+  const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}/, '')
+  return EXCLUDED_ROUTES.some(route => pathWithoutLocale.startsWith(route))
+}
+
 export default function Navbar() {
   const locale = useLocale()
+  const pathname = usePathname()
   const t = useTranslations('nav')
   const [open, setOpen] = useState(false)
   const activeOrder = useOrderStore((s) => s.activeOrder)
   const items = activeOrder?.items || []
   const itemCount = items.reduce((sum, item) => sum + item.qty, 0)
   const { bannerDismissed, showBanner } = useDataMode()
+  const hideBasket = shouldHideBasket(pathname)
 
   return (
     <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-40">
@@ -57,19 +68,21 @@ export default function Navbar() {
               </button>
             )}
           </div>
-          {/* Basket button - only visible on mobile (cart is sidebar on md+) */}
-          <button
-            onClick={() => setOpen(true)}
-            className="md:hidden relative px-3 py-1.5 bg-primary-500 hover:bg-primary-600 text-white rounded-md text-sm font-medium transition-colors"
-            aria-label="Open shopping basket"
-          >
-            {t('basket')}
-            {itemCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                {itemCount > 99 ? '99+' : itemCount}
-              </span>
-            )}
-          </button>
+          {/* Basket button - only visible on mobile (cart is sidebar on md+), hidden on dashboard/login */}
+          {!hideBasket && (
+            <button
+              onClick={() => setOpen(true)}
+              className="md:hidden relative px-3 py-1.5 bg-primary-500 hover:bg-primary-600 text-white rounded-md text-sm font-medium transition-colors"
+              aria-label="Open shopping basket"
+            >
+              {t('basket')}
+              {itemCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                  {itemCount > 99 ? '99+' : itemCount}
+                </span>
+              )}
+            </button>
+          )}
         </div>
       </div>
       <Drawer open={open} onClose={() => setOpen(false)}>

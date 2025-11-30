@@ -8,7 +8,12 @@
     "dishes": "{count} {count, plural, one {Gericht} other {Gerichte}}",
     "tasteCharacteristics": "Geschmacksmerkmale",
     "ingredients": "Zutaten",
-    "addToCart": "In den Warenkorb"
+    "addToCart": "In den Warenkorb",
+    "browsingMode": "Sie durchsuchen das Menü. Geben Sie eine Tischnummer ein, um zu bestellen.",
+    "enterTableId": "Tischnummer eingeben →",
+    "enterTableTitle": "Tischnummer eingeben",
+    "enterTableDescription": "Bitte geben Sie Ihre Tischnummer ein, um fortzufahren.",
+    "tableIdPlaceholder": "z.B. T01, A5"
   },
   "basket": {
     "title": "Ihr Warenkorb",

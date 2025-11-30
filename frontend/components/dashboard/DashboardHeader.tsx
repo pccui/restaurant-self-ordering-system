@@ -2,43 +2,50 @@
 
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
-import { User } from '@/lib/store/authStore';
-import ThemeToggle from '@/components/ui/ThemeToggle';
 import LanguageToggle from '@/components/LanguageToggle';
+import ThemeToggle from '@/components/ui/ThemeToggle';
+import { User } from '@/lib/store/authStore';
 
 interface DashboardHeaderProps {
   user: User | null;
+  onMenuToggle?: () => void;
 }
 
-export default function DashboardHeader({ user }: DashboardHeaderProps) {
+export default function DashboardHeader({ user, onMenuToggle }: DashboardHeaderProps) {
   const t = useTranslations('dashboard');
   const locale = useLocale();
 
   return (
-    <header className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
-      <div className="h-full px-4 lg:px-6 flex items-center justify-between">
-        {/* Logo / Title */}
-        <div className="flex items-center gap-3">
-          <span className="text-2xl">🍽️</span>
-          <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
+    <header className="h-14 sm:h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
+      <div className="h-full px-3 sm:px-4 lg:px-6 flex items-center justify-between">
+        {/* Left side - Menu button (mobile) + Logo */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Mobile menu toggle */}
+          <button
+            onClick={onMenuToggle}
+            className="lg:hidden p-2 -ml-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            aria-label="Toggle menu"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
+          <span className="text-xl sm:text-2xl">🍽️</span>
+          <h1 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
             {t('title')}
           </h1>
         </div>
 
-        {/* Right side actions */}
-        <div className="flex items-center gap-4">
-          {/* View Menu Link */}
+        {/* Right side - Actions */}
+        <div className="flex items-center gap-2 sm:gap-3">
           <Link
-            href={`/${locale}`}
-            className="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+            href={`/${locale}/menu`}
+            className="hidden sm:inline text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
           >
             {t('viewMenu')}
           </Link>
-
-          {/* Language Toggle */}
           <LanguageToggle locale={locale} />
-
-          {/* Theme Toggle */}
           <ThemeToggle />
         </div>
       </div>
