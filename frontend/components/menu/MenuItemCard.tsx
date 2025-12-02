@@ -42,7 +42,7 @@ function MenuItemCard({ item, onOpenDetail, canOrder = true }: MenuItemCardProps
 
   return (
     <article
-      className="flex gap-4 p-3 bg-white rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer group"
+      className="flex gap-4 p-3 bg-white rounded-lg border border-gray-100 hover:bg-gray-50 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer group"
       onClick={handleCardClick}
       role="button"
       tabIndex={0}

@@ -1,6 +1,7 @@
 'use client'
 import React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useLocale } from 'next-intl'
 import { useOrderStore } from '@/lib/store/orderStore'
 import { getTasteBadgeClasses, getTasteIcon } from '@/lib/utils/tasteColors'
@@ -62,24 +63,26 @@ export default function MenuDetail({ item }: { item: MenuItem & Record<string, u
       {/* Hero Image */}
       {item.imageUrl && (
         <div className="relative w-full aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden mb-6">
-          <img
-            src={item.imageUrl as string}
+          <Image
+            src={item.imageUrl}
             alt={t.name || 'Menu item'}
-            className="w-full h-full object-cover"
-            loading="lazy"
+            className="object-cover"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            priority
           />
         </div>
       )}
 
-      {/* Video Embed (if available) - TODO: Add YouTube URLs */}
+      {/* Video Embed */}
       {item.videoUrl && typeof item.videoUrl === 'string' && item.videoUrl.trim() && (
         <div className="mb-6">
           {isYouTubeUrl(item.videoUrl) ? (
             <iframe
-              src={item.videoUrl}
+              src={item.videoUrl.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
               className="w-full aspect-video rounded-lg"
               loading="lazy"
-              allow="accelerometer; encrypted-media"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               title={`${t.name} video`}
             />

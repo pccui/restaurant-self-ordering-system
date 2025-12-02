@@ -1,4 +1,5 @@
 import '../globals.css'
+import { Inter } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
@@ -8,6 +9,8 @@ import ThemeProvider from '@/components/ui/ThemeProvider'
 import { CartSidebar, CartFloatingButton } from '@/components/order/CartWrapper'
 import ModeBanner from '@/components/ModeBanner'
 import type { ReactNode } from 'react'
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 const locales = ['en', 'zh', 'de'];
 
@@ -28,7 +31,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <body className='min-h-screen bg-gray-50 dark:bg-gray-900'>
+      <body className={`min-h-screen bg-gray-50 dark:bg-gray-900 ${inter.variable} font-sans`}>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ThemeProvider>
             {/* Mode Banner - Dismissible info about local/server mode */}
