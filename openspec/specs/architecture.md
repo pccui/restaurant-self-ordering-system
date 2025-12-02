@@ -122,22 +122,41 @@ backend/src/modules/
 app/
   ├── [locale]/
   │     ├── layout.tsx + NextIntlClientProvider
-  │     ├── menu/[tableId]/page.tsx
+  │     ├── menu/page.tsx              (browse-only, no cart)
+  │     ├── [tableId]/menu/page.tsx    (table ordering, server mode)
+  │     ├── local/[tableId]/menu/...   (table ordering, local mode)
   │     ├── dashboard/...
   │     └── ...
   ├── api/
   │     └── online/
   │           ├── menu/route.ts (GET /api/online/menu)
-  │           └── order/route.ts (POST /api/online/order)
+  │           ├── order/route.ts (POST /api/online/order)
+  │           └── order/table/[tableId]/route.ts (GET order by table)
   ├── layout.tsx
   └── page.tsx  (redirect → default locale)
 
 lib/
   ├── api/          (client-side API utilities)
   ├── data/         (static data, menuData.ts)
+  ├── hooks/        (useRouteMode, useOrderSync, etc.)
   ├── store/        (Zustand stores)
   └── sync/         (offline sync logic)
 ```
+
+### Route Modes
+| Route | Purpose | Cart Enabled |
+|-------|---------|--------------|
+| `/en/menu` | Browse menu only | ❌ No |
+| `/en/T01/menu` | Table ordering (server mode) | ✅ Yes |
+| `/en/local/T01/menu` | Table ordering (local mode) | ✅ Yes |
+| `/en/dashboard` | Staff dashboard | N/A |
+
+### useRouteMode Hook
+Determines data mode from URL path (single source of truth):
+- `mode`: 'local' or 'server'
+- `isBrowseOnly`: true when on `/[locale]/menu` without tableId
+- `canOrder`: true when user has a valid table assignment
+- `showModeToggle`: only on table-specific routes
 
 ### State Management
 - **Zustand** for basket, theme, demo toggle, offline status.

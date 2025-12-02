@@ -56,20 +56,20 @@ export class OrderService {
       },
       orderBy: { createdAt: 'desc' },
     });
-    
+
     if (!order) return null;
-    
+
     // Enrich order items with menu data
     const menuItems = await prisma.menuItem.findMany();
     const menuMap = new Map(menuItems.map(m => [m.id, m]));
-    
+
     const rawItems = order.items as Array<{ menuItemId?: string; id?: string; qty: number; name?: string; priceCents?: number; imageUrl?: string }>;
     const enrichedItems = rawItems.map(item => {
       const itemId = item.menuItemId || item.id;
       const menuItem = itemId ? menuMap.get(itemId) : null;
       const translations = menuItem?.translations as Record<string, { name?: string }> | undefined;
       const name = translations?.en?.name || item.name || `Item ${itemId}`;
-      
+
       return {
         id: itemId,
         name,
@@ -78,7 +78,7 @@ export class OrderService {
         imageUrl: menuItem?.thumbnailUrl || menuItem?.imageUrl || item.imageUrl || undefined,
       };
     });
-    
+
     return {
       id: order.id,
       tableId: order.tableId,
@@ -353,11 +353,11 @@ export class OrderService {
         // Handle both formats: { menuItemId, qty } and { id, qty, name, priceCents, imageUrl }
         const itemId = item.menuItemId || item.id;
         const menuItem = itemId ? menuMap.get(itemId) : null;
-        
+
         // Get English name as fallback
         const translations = menuItem?.translations as Record<string, { name?: string }> | undefined;
         const name = translations?.en?.name || item.name || `Item ${itemId}`;
-        
+
         return {
           id: itemId,
           name,
