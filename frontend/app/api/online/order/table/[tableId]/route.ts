@@ -6,7 +6,12 @@ export async function GET(
   { params }: { params: Promise<{ tableId: string }> }
 ) {
   const { tableId } = await params;
-  
+
+  // Validate tableId - must be a real table ID, not empty or placeholder
+  if (!tableId || tableId === 't001' || tableId.trim() === '') {
+    return NextResponse.json(null, { status: 404 });
+  }
+
   try {
     const backendRes = await fetch(`${API_BASE}/api/online/order/table/${tableId}`);
 
@@ -20,8 +25,19 @@ export async function GET(
       );
     }
 
-    const data = await backendRes.json();
-    return NextResponse.json(data);
+    // Handle empty response body
+    const text = await backendRes.text();
+    if (!text || text.trim() === '') {
+      return NextResponse.json(null, { status: 404 });
+    }
+
+    try {
+      const data = JSON.parse(text);
+      return NextResponse.json(data);
+    } catch {
+      // Invalid JSON response from backend
+      return NextResponse.json(null, { status: 404 });
+    }
   } catch (error) {
     console.error('Error fetching order by table:', error);
     return NextResponse.json(

@@ -11,7 +11,20 @@ function shouldHideCart(pathname: string): boolean {
   // Check if current path starts with any excluded route
   // Account for locale prefix: /en/dashboard, /zh/login, etc.
   const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}/, '')
-  return EXCLUDED_ROUTES.some(route => pathWithoutLocale.startsWith(route))
+
+  // Check explicitly excluded routes
+  if (EXCLUDED_ROUTES.some(route => pathWithoutLocale.startsWith(route))) {
+    return true
+  }
+
+  // Hide cart on browse-only menu route (/en/menu without tableId)
+  // Browse-only pattern: /[locale]/menu - no tableId segment
+  const isBrowseOnly = /^\/[a-z]{2}\/menu(\/.*)?$/.test(pathname)
+  if (isBrowseOnly) {
+    return true
+  }
+
+  return false
 }
 
 export function CartSidebar() {

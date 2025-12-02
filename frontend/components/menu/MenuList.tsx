@@ -9,6 +9,7 @@ import CategoryNav from './CategoryNav'
 import MenuDetailModal from './MenuDetailModal'
 import { MenuCardSkeletonGrid } from './MenuCardSkeleton'
 import { useMenuStore } from '@/lib/store/menuStore'
+import { useRouteMode } from '@/lib/hooks/useRouteMode'
 import { localizeMenu } from '@/lib/api/menu'
 import type { MenuItem } from '@restaurant/shared/src/schemas/menu'
 
@@ -29,6 +30,7 @@ export default function MenuList() {
   const searchParams = useSearchParams()
   const menu = useMenuStore((s) => s.menu || [])
   const loadMenu = useMenuStore((s) => s.loadMenu)
+  const { mode, canOrder } = useRouteMode()
   const locale = useLocale()
   const t = useTranslations()
 
@@ -52,8 +54,8 @@ export default function MenuList() {
 
   useEffect(() => {
     setLoading(true)
-    loadMenu().finally(() => setLoading(false))
-  }, [loadMenu])
+    loadMenu(mode).finally(() => setLoading(false))
+  }, [loadMenu, mode])
 
   useEffect(() => {
     setLocalized(localizeMenu(menu, locale) as LocalizedMenuItem[])
@@ -304,6 +306,7 @@ export default function MenuList() {
                     key={it.id}
                     item={it as MenuItem}
                     onOpenDetail={handleOpenDetail}
+                    canOrder={canOrder}
                   />
                 ))}
               </div>
@@ -325,6 +328,7 @@ export default function MenuList() {
                     key={it.id}
                     item={it as MenuItem}
                     onOpenDetail={handleOpenDetail}
+                    canOrder={canOrder}
                   />
                 ))}
               </div>
@@ -346,6 +350,7 @@ export default function MenuList() {
                 key={it.id}
                 item={it as MenuItem}
                 onOpenDetail={handleOpenDetail}
+                canOrder={canOrder}
               />
             ))}
           </div>
@@ -353,7 +358,7 @@ export default function MenuList() {
       )}
 
       {/* Item Detail Modal */}
-      <MenuDetailModal item={selectedItem} onClose={handleCloseDetail} />
+      <MenuDetailModal item={selectedItem} onClose={handleCloseDetail} canOrder={canOrder} />
     </div>
   )
 }

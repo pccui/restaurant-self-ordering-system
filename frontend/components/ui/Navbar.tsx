@@ -9,6 +9,7 @@ import Drawer from './Drawer'
 import OrderPanel from '@/components/order/OrderPanel'
 import { useOrderStore } from '@/lib/store/orderStore'
 import { useDataMode } from '@/lib/store/useDataMode'
+import { useRouteMode } from '@/lib/hooks/useRouteMode'
 
 // Routes where basket should NOT be displayed
 const EXCLUDED_ROUTES = ['/dashboard', '/login']
@@ -27,6 +28,7 @@ export default function Navbar() {
   const items = activeOrder?.items || []
   const itemCount = items.reduce((sum, item) => sum + item.qty, 0)
   const { bannerDismissed, showBanner } = useDataMode()
+  const { showModeToggle } = useRouteMode()
   const hideBasket = shouldHideBasket(pathname)
 
   return (
@@ -42,8 +44,8 @@ export default function Navbar() {
           <LanguageToggle locale={locale} />
           <div className="hidden sm:flex items-center gap-2">
             <ThemeToggle />
-            {/* Settings button to re-show mode banner */}
-            {bannerDismissed && (
+            {/* Settings button to re-show mode banner (only if local mode is enabled) */}
+            {showModeToggle && bannerDismissed && (
               <button
                 onClick={showBanner}
                 className="p-2 text-gray-500 hover:text-primary-600 hover:bg-gray-100 rounded-md transition-colors"

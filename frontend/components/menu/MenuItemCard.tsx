@@ -14,9 +14,11 @@ interface Taste {
 interface MenuItemCardProps {
   item: MenuItem & { tastes?: Taste[] }
   onOpenDetail?: (item: MenuItem & { tastes?: Taste[] }) => void
+  /** Whether user can add items to cart (has table ID) */
+  canOrder?: boolean
 }
 
-function MenuItemCard({ item, onOpenDetail }: MenuItemCardProps) {
+function MenuItemCard({ item, onOpenDetail, canOrder = true }: MenuItemCardProps) {
   const locale = useLocale();
   const translations = item.translations as Record<string, { name?: string; shortDescription?: string }>;
   const t = translations[locale as keyof typeof translations] || translations.en || { name: '', shortDescription: '' };
@@ -101,18 +103,20 @@ function MenuItemCard({ item, onOpenDetail }: MenuItemCardProps) {
         </div>
       </div>
 
-      {/* Add Button - Right side */}
-      <div className="flex items-center">
-        <button
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white transition-colors shadow-sm"
-          onClick={handleAddClick}
-          aria-label={`Add ${t.name} to cart`}
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-          </svg>
-        </button>
-      </div>
+      {/* Add Button - Right side (only shown when ordering is enabled) */}
+      {canOrder && (
+        <div className="flex items-center">
+          <button
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white transition-colors shadow-sm"
+            onClick={handleAddClick}
+            aria-label={`Add ${t.name} to cart`}
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+        </div>
+      )}
     </article>
   )
 }

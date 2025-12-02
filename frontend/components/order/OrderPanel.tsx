@@ -7,14 +7,14 @@ import { useOrderStore, type OrderItem, type PlacedOrder } from '@/lib/store/ord
 import { useMenuStore } from '@/lib/store/menuStore'
 import { useOrderTimer, formatTimeRemaining } from '@/hooks/useOrderTimer'
 import { useOrderSync } from '@/hooks/useOrderSync'
-import { useDataMode } from '@/lib/store/useDataMode'
+import { useRouteMode } from '@/lib/hooks/useRouteMode'
 import { syncOrderToServer } from '@/lib/sync/localSync'
 import { formatPrice } from '@/lib/utils/formatPrice'
 
 export default function OrderPanel() {
   const locale = useLocale()
   const params = useParams()
-  const tableId = (params?.tableId as string) || 't001'
+  const tableId = (params?.tableId as string) || ''
 
   const t = useTranslations()
   const tBasket = useTranslations('basket')
@@ -32,7 +32,7 @@ export default function OrderPanel() {
   const isOrderPlaced = useOrderStore((s) => s.isOrderPlaced)
   const totalCents = useOrderStore((s) => s.totalCents)()
   const menu = useMenuStore((s) => s.menu || [])
-  const { mode } = useDataMode()
+  const { mode, canOrder } = useRouteMode()
 
   const { minutes, seconds, isEditable, isExpired } = useOrderTimer()
   const { refetch: syncOrderStatus } = useOrderSync()
@@ -40,13 +40,16 @@ export default function OrderPanel() {
 
   // Set tableId from URL on mount and fetch order from server
   useEffect(() => {
+    // Only set tableId and fetch if we have a valid tableId (not browse-only mode)
+    if (!tableId || !canOrder) return
+
     setTableId(tableId)
-    
+
     // In server mode, also try to fetch existing order from server
     if (mode === 'server') {
       fetchOrderFromServer(tableId)
     }
-  }, [tableId, setTableId, fetchOrderFromServer, mode])
+  }, [tableId, setTableId, fetchOrderFromServer, mode, canOrder])
 
   // Get thumbnail for an item
   const getThumbnail = (itemId: string) => {
@@ -152,7 +155,7 @@ export default function OrderPanel() {
         <h3 className="text-lg font-semibold text-gray-900 mb-2">{tBasket('empty')}</h3>
         <p className="text-sm text-gray-500 mb-4">{tBasket('emptyDescription')}</p>
         <Link
-          href={`/${locale}/${tableId}/menu`}
+          href={tableId ? `/${locale}/${tableId}/menu` : `/${locale}/menu`}
           className="inline-block px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-full text-sm font-medium transition-colors"
         >
           {tBasket('browseMenu')}

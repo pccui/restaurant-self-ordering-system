@@ -103,7 +103,7 @@ export const useOrderStore = create<OrderState>()(
           }
           throw new Error('Failed to fetch order');
         }
-        
+
         const serverOrder = await response.json();
         if (serverOrder && serverOrder.status !== 'paid') {
           // Convert server order format to local format
@@ -115,7 +115,7 @@ export const useOrderStore = create<OrderState>()(
             status: serverOrder.status,
             total: serverOrder.total || 0,
           };
-          
+
           set({ activeOrder: localOrder });
           saveOrderToStorage(tableId, localOrder);
         }

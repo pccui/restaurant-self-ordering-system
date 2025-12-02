@@ -1,26 +1,29 @@
 import { create } from 'zustand';
 import { fetchMenu } from '@/lib/api/menu';
-import { useDataMode } from '@/lib/store/useDataMode';
 import type { MenuItem } from '@restaurant/shared/src/schemas/menu';
+import type { DataMode } from '@/lib/hooks/useRouteMode';
 
 interface MenuState {
   menu: MenuItem[] | null;
   loading: boolean;
   error: string | null;
-  loadMenu: () => Promise<void>;
+  currentMode: DataMode;
+  loadMenu: (mode?: DataMode) => Promise<void>;
 }
 
-export const useMenuStore = create<MenuState>((set) => ({
+export const useMenuStore = create<MenuState>((set, get) => ({
   menu: null,
   loading: false,
   error: null,
+  currentMode: 'server',
 
-  loadMenu: async () => {
-    set({ loading: true, error: null });
+  loadMenu: async (mode?: DataMode) => {
+    // Use provided mode or keep current
+    const targetMode = mode ?? get().currentMode;
+
+    set({ loading: true, error: null, currentMode: targetMode });
     try {
-      // Get current data mode from the store
-      const mode = useDataMode.getState().mode;
-      const menu = await fetchMenu(mode);
+      const menu = await fetchMenu(targetMode);
       set({ menu, loading: false });
     } catch (error) {
       set({

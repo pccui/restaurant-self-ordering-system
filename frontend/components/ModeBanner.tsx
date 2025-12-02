@@ -1,6 +1,8 @@
 'use client'
-import { useDataMode, type DataMode } from '@/lib/store/useDataMode'
+import { useDataMode, switchMode, type DataMode } from '@/lib/store/useDataMode'
+import { useRouteMode } from '@/lib/hooks/useRouteMode'
 import { useMenuStore } from '@/lib/store/menuStore'
+import { useRouter, usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 
@@ -11,7 +13,10 @@ const MODES: { value: DataMode; icon: string }[] = [
 
 export default function ModeBanner() {
   const t = useTranslations()
-  const { mode, setMode, bannerDismissed, dismissBanner } = useDataMode()
+  const router = useRouter()
+  const pathname = usePathname()
+  const { mode, showModeToggle } = useRouteMode()
+  const { bannerDismissed, dismissBanner } = useDataMode()
   const loadMenu = useMenuStore((s) => s.loadMenu)
   const [isChanging, setIsChanging] = useState(false)
 
@@ -19,17 +24,22 @@ export default function ModeBanner() {
     if (newMode === mode || isChanging) return
 
     setIsChanging(true)
-    setMode(newMode)
+
+    // Navigate to new route (mode is in URL)
+    switchMode(newMode, pathname, router)
 
     // Reload menu data from new source
     try {
-      await loadMenu()
+      await loadMenu(newMode)
     } catch (error) {
       console.error('Failed to reload menu:', error)
     } finally {
       setTimeout(() => setIsChanging(false), 300)
     }
   }
+
+  // Don't render if local mode is disabled or not on a table route
+  if (!showModeToggle) return null
 
   // Don't render if banner is dismissed
   if (bannerDismissed) return null

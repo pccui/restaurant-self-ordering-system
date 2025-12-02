@@ -17,6 +17,9 @@ const nextConfig = {
     unoptimized: true,
     remotePatterns: [],
   },
+  experimental: {
+    reactCompiler: true,
+  },
 }
 
 export default withNextIntl(nextConfig);

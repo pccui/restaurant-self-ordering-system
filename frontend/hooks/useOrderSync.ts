@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useCallback, useRef } from 'react'
 import { useOrderStore, type OrderStatus } from '@/lib/store/orderStore'
-import { useDataMode } from '@/lib/store/useDataMode'
+import { useRouteMode } from '@/lib/hooks/useRouteMode'
 
 const POLL_INTERVAL = 30000 // 30 seconds
 
@@ -21,7 +21,7 @@ interface ServerOrder {
  * Only active in 'server' mode when there's a placed order
  */
 export function useOrderSync() {
-  const { mode } = useDataMode()
+  const { mode } = useRouteMode()
   const activeOrder = useOrderStore((s) => s.activeOrder)
   const updateOrderFromServer = useOrderStore((s) => s.updateOrderFromServer)
   const confirmOrder = useOrderStore((s) => s.confirmOrder)

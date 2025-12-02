@@ -19,9 +19,11 @@ interface Ingredient {
 interface MenuDetailModalProps {
   item: (MenuItem & Record<string, unknown>) | null
   onClose: () => void
+  /** Whether user can add items to cart (has table ID) */
+  canOrder?: boolean
 }
 
-export default function MenuDetailModal({ item, onClose }: MenuDetailModalProps) {
+export default function MenuDetailModal({ item, onClose, canOrder = true }: MenuDetailModalProps) {
   const locale = useLocale()
   const add = useOrderStore((s) => s.addItem)
   const [quantity, setQuantity] = useState(1)
@@ -127,37 +129,39 @@ export default function MenuDetailModal({ item, onClose }: MenuDetailModalProps)
         )}
       </div>
 
-      {/* Sticky Bottom Add to Cart Bar */}
-      <div className="sticky bottom-0 bg-white border-t border-gray-100 p-4">
-        <div className="flex items-center gap-4">
-          {/* Quantity Selector */}
-          <div className="flex items-center border border-gray-200 rounded-full">
+      {/* Sticky Bottom Add to Cart Bar (only shown when ordering is enabled) */}
+      {canOrder && (
+        <div className="sticky bottom-0 bg-white border-t border-gray-100 p-4">
+          <div className="flex items-center gap-4">
+            {/* Quantity Selector */}
+            <div className="flex items-center border border-gray-200 rounded-full">
+              <button
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-l-full transition-colors text-lg"
+                aria-label="Decrease quantity"
+              >
+                −
+              </button>
+              <span className="w-10 text-center font-medium">{quantity}</span>
+              <button
+                onClick={() => setQuantity(Math.min(99, quantity + 1))}
+                className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-r-full transition-colors text-lg"
+                aria-label="Increase quantity"
+              >
+                +
+              </button>
+            </div>
+
+            {/* Add to Cart Button */}
             <button
-              onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-l-full transition-colors text-lg"
-              aria-label="Decrease quantity"
+              onClick={handleAddToCart}
+              className="flex-1 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white py-3 px-6 rounded-full font-medium transition-colors text-base"
             >
-              −
-            </button>
-            <span className="w-10 text-center font-medium">{quantity}</span>
-            <button
-              onClick={() => setQuantity(Math.min(99, quantity + 1))}
-              className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-r-full transition-colors text-lg"
-              aria-label="Increase quantity"
-            >
-              +
+              Add to Cart · {formatPrice(item.priceCents * quantity)}
             </button>
           </div>
-
-          {/* Add to Cart Button */}
-          <button
-            onClick={handleAddToCart}
-            className="flex-1 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white py-3 px-6 rounded-full font-medium transition-colors text-base"
-          >
-            Add to Cart · {formatPrice(item.priceCents * quantity)}
-          </button>
         </div>
-      </div>
+      )}
     </Dialog>
   )
 }

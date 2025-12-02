@@ -1,27 +1,36 @@
 'use client'
-import { useDemoMode } from '@/lib/store/useDemoMode'
+import { useRouteMode, type DataMode } from '@/lib/hooks/useRouteMode'
+import { switchMode } from '@/lib/store/useDataMode'
 import { useMenuStore } from '@/lib/store/menuStore'
-import { useState, useEffect } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
+import { useState } from 'react'
 
-const MODES = [
-  { value: 'offline', label: 'Offline', icon: '💾', description: 'Use local data (IndexedDB)' },
-  { value: 'online', label: 'Online', icon: '🌐', description: 'Fetch from API server' },
-] as const
+const MODES: { value: DataMode; label: string; icon: string; description: string }[] = [
+  { value: 'local', label: 'Local', icon: '💾', description: 'Use local data (IndexedDB)' },
+  { value: 'server', label: 'Server', icon: '🌐', description: 'Fetch from API server' },
+]
 
 export default function ModeToggle() {
-  const { mode, setMode } = useDemoMode()
+  const router = useRouter()
+  const pathname = usePathname()
+  const { mode, showModeToggle } = useRouteMode()
   const loadMenu = useMenuStore((s) => s.loadMenu)
   const [isChanging, setIsChanging] = useState(false)
 
-  const handleModeChange = async (newMode: 'online' | 'offline') => {
+  // Don't render if local mode is disabled or not on appropriate route
+  if (!showModeToggle) return null
+
+  const handleModeChange = async (newMode: DataMode) => {
     if (newMode === mode || isChanging) return
 
     setIsChanging(true)
-    setMode(newMode)
+
+    // Navigate to new route (mode is in URL)
+    switchMode(newMode, pathname, router)
 
     // Reload menu data from new source
     try {
-      await loadMenu()
+      await loadMenu(newMode)
     } catch (error) {
       console.error('Failed to reload menu:', error)
     } finally {

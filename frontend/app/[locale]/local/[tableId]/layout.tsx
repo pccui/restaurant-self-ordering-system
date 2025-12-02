@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 
 interface TableContextValue {
   tableId: string;
-  isLocalMode?: boolean;
+  isLocalMode: true;
 }
 
 const TableContext = createContext<TableContextValue | null>(null);
@@ -18,12 +18,16 @@ export function useTable() {
   return context;
 }
 
-export default function TableLayout({ children }: { children: ReactNode }) {
+/**
+ * Layout for local mode table routes
+ * Same as regular table layout but with isLocalMode flag
+ */
+export default function LocalTableLayout({ children }: { children: ReactNode }) {
   const params = useParams();
   const tableId = params.tableId as string;
 
   return (
-    <TableContext.Provider value={{ tableId, isLocalMode: false }}>
+    <TableContext.Provider value={{ tableId, isLocalMode: true }}>
       {children}
     </TableContext.Provider>
   );
