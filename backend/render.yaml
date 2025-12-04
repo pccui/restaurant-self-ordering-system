@@ -1,0 +1,28 @@
+# Render Blueprint for Backend Deployment
+# See: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: restaurant-backend
+    runtime: node
+    region: frankfurt # eu-central, or use oregon for US
+    plan: free # or starter for production
+    buildCommand: |
+      npm install -g pnpm &&
+      pnpm install &&
+      pnpm turbo build --filter=backend &&
+      pnpm --filter backend exec prisma generate
+    startCommand: pnpm start:backend
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false # Set manually in Render dashboard (Supabase connection string)
+      - key: FRONTEND_URL
+        sync: false # Set manually (Vercel frontend URL)
+      - key: JWT_SECRET
+        generateValue: true
+    healthCheckPath: /api/health
+    autoDeploy: true

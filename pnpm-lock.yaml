@@ -11,6 +11,9 @@ importers:
       prettier:
         specifier: ^3.0.0
         version: 3.6.2
+      turbo:
+        specifier: ^2.6.2
+        version: 2.6.2
 
   backend:
     dependencies:
@@ -2704,6 +2707,7 @@ packages:
   next@15.5.6:
     resolution: {integrity: sha512-zTxsnI3LQo3c9HSdSf91O1jMNsEzIXDShXd4wVdg9y5shwLqBXi4ZtUUJyB86KGVSJLZx0PFONvO54aheGX8QQ==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
+    deprecated: This version has a security vulnerability. Please upgrade to a patched version. See https://nextjs.org/blog/CVE-2025-66478 for more details.
     hasBin: true
     peerDependencies:
       '@opentelemetry/api': ^1.1.0
@@ -3494,6 +3498,40 @@ packages:
   tsx@4.20.6:
     resolution: {integrity: sha512-ytQKuwgmrrkDTFP4LjR0ToE2nqgy886GpvRSpU0JAnrdBYppuY5rLkRUYPU1yCryb24SsKBTL/hlDQAEFVwtZg==}
     engines: {node: '>=18.0.0'}
+    hasBin: true
+
+  turbo-darwin-64@2.6.2:
+    resolution: {integrity: sha512-nF9d/YAyrNkyXn9lp3ZtgXPb7fZsik3cUNe/sBvUO0G5YezUS/kDYYw77IdjizDzairz8pL2ITCTUreG2d5iZQ==}
+    cpu: [x64]
+    os: [darwin]
+
+  turbo-darwin-arm64@2.6.2:
+    resolution: {integrity: sha512-mmm0jFaVramST26XE1Lk2qjkjvLJHOe9f3TFjqY+aByjMK/ZmKE5WFPuCWo4L3xhwx+16T37rdPP//76loB3oA==}
+    cpu: [arm64]
+    os: [darwin]
+
+  turbo-linux-64@2.6.2:
+    resolution: {integrity: sha512-IUMHjkVRJDUABGpi+iS1Le59aOl5DX88U5UT/mKaE7nNEjG465+a8UtYno56cZnLP+C6BkX4I93LFgYf9syjGQ==}
+    cpu: [x64]
+    os: [linux]
+
+  turbo-linux-arm64@2.6.2:
+    resolution: {integrity: sha512-0qQdZiimMUZj2Gfq87thYu0E02NaNcsB3lcEK/TD70Zzi7AxQoxye664Gis0Uao2j2L9/+05wC2btZ7SoFX3Gw==}
+    cpu: [arm64]
+    os: [linux]
+
+  turbo-windows-64@2.6.2:
+    resolution: {integrity: sha512-BmMfFmt0VaoZL4NbtDq/dzGfjHsPoGU2+vFiZtkiYsttHY3fd/Dmgnu9PuRyJN1pv2M22q88rXO+dqYRHztLMw==}
+    cpu: [x64]
+    os: [win32]
+
+  turbo-windows-arm64@2.6.2:
+    resolution: {integrity: sha512-0r4s4M/FgLxfjrdLPdqQUur8vZAtaWEi4jhkQ6wCIN2xzA9aee9IKwM53w7CQcjaLvWhT0AU7LTQHjFaHwxiKw==}
+    cpu: [arm64]
+    os: [win32]
+
+  turbo@2.6.2:
+    resolution: {integrity: sha512-LiQAFS6iWvnY8ViGtoPgduWBeuGH9B32XR4p8H8jxU5PudwyHiiyf1jQW0fCC8gCCTz9itkIbqZLIyUu5AG33w==}
     hasBin: true
 
   type-check@0.4.0:
@@ -7273,6 +7311,33 @@ snapshots:
       get-tsconfig: 4.13.0
     optionalDependencies:
       fsevents: 2.3.3
+
+  turbo-darwin-64@2.6.2:
+    optional: true
+
+  turbo-darwin-arm64@2.6.2:
+    optional: true
+
+  turbo-linux-64@2.6.2:
+    optional: true
+
+  turbo-linux-arm64@2.6.2:
+    optional: true
+
+  turbo-windows-64@2.6.2:
+    optional: true
+
+  turbo-windows-arm64@2.6.2:
+    optional: true
+
+  turbo@2.6.2:
+    optionalDependencies:
+      turbo-darwin-64: 2.6.2
+      turbo-darwin-arm64: 2.6.2
+      turbo-linux-64: 2.6.2
+      turbo-linux-arm64: 2.6.2
+      turbo-windows-64: 2.6.2
+      turbo-windows-arm64: 2.6.2
 
   type-check@0.4.0:
     dependencies:

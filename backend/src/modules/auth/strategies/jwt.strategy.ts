@@ -3,6 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException, Inject } from '@nestjs/common';
 import { Request } from 'express';
 import { AuthService, JwtPayload, SafeUser } from '../auth.service';
+import { env } from '../../../config/env';
 
 // Extract JWT from httpOnly cookie
 const cookieExtractor = (req: Request): string | null => {
@@ -21,7 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET || 'dev-secret-change-in-production',
+      secretOrKey: env.JWT_SECRET,
     });
   }
 

@@ -8,9 +8,10 @@ import { OrderService } from './modules/order/order.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuditModule } from './modules/audit/audit.module';
+import { HealthModule } from './modules/health/health.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, AuditModule],
+  imports: [AuthModule, UsersModule, AuditModule, HealthModule],
   controllers: [MenuController, OrderController, SyncController, TablesController],
   providers: [MenuService, OrderService],
 })

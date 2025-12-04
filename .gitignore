@@ -4,6 +4,9 @@ node_modules/
 .yarn/
 .pnpm/
 
+# Turborepo
+.turbo/
+
 # Next.js
 /.next/
 /out/
