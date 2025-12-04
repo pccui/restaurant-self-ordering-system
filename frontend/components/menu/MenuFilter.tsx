@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { getTasteBadgeClasses, getTasteIcon } from '@/lib/utils/tasteColors'
 
@@ -37,6 +37,9 @@ function MenuFilter({
       onTastesChange([...selectedTastes, taste])
     }
   }
+
+  // Taste filter section is collapsed by default
+  const [tastesExpanded, setTastesExpanded] = useState(false)
 
   const clearAllFilters = () => {
     onCategoryChange('all')
@@ -94,17 +97,37 @@ function MenuFilter({
       {/* Taste Filter */}
       {availableTastes.length > 0 && (
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-gray-900">
-              {t('filter.tasteCharacteristics')}
-            </h3>
-            {selectedTastes.length > 0 && (
-              <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-700">
-                {selectedTastes.length} {t('filter.selected')}
-              </span>
-            )}
-          </div>
-          <div className="flex flex-wrap gap-2 sm:gap-2.5">
+          <button
+            onClick={() => setTastesExpanded(!tastesExpanded)}
+            className="flex items-center justify-between w-full py-2 text-left group"
+            aria-expanded={tastesExpanded}
+          >
+            <span className="flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-gray-900">
+                {t('filter.tasteCharacteristics')}
+              </h3>
+              {selectedTastes.length > 0 && (
+                <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                  {selectedTastes.length} {t('filter.hidden')}
+                </span>
+              )}
+            </span>
+            <span className="flex items-center gap-1 text-xs text-gray-500 group-hover:text-gray-700 transition-colors">
+              <span>{tastesExpanded ? t('filter.collapse') : t('filter.expand')}</span>
+              <svg
+                className={`w-4 h-4 transition-transform duration-200 ${tastesExpanded ? 'rotate-180' : ''}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </span>
+          </button>
+
+          {tastesExpanded && (
+            <div className="flex flex-wrap gap-2 sm:gap-2.5 mt-2">
             {availableTastes.map((taste) => {
               const isSelected = selectedTastes.includes(taste)
               const icon = getTasteIcon(taste)
@@ -121,11 +144,11 @@ function MenuFilter({
                     text-sm sm:text-xs
                     active:scale-95
                     ${isSelected
-                      ? 'ring-2 ring-primary-500 ring-offset-1 scale-105'
-                      : 'opacity-70 hover:opacity-100 active:opacity-90'
+                      ? 'ring-2 ring-red-400 ring-offset-1 opacity-50 line-through'
+                      : 'opacity-90 hover:opacity-100 active:opacity-90'
                     }
                   `}
-                  aria-label={`${isSelected ? 'Remove' : 'Add'} ${taste} filter`}
+                  aria-label={`${isSelected ? 'Show' : 'Hide'} ${taste} dishes`}
                   aria-pressed={isSelected}
                   role="checkbox"
                   aria-checked={isSelected}
@@ -133,12 +156,13 @@ function MenuFilter({
                   <span aria-hidden="true">{icon}</span>
                   <span>{taste}</span>
                   {isSelected && (
-                    <span aria-hidden="true" className="ml-1">✓</span>
+                    <span aria-hidden="true" className="ml-1">✕</span>
                   )}
                 </button>
               )
             })}
           </div>
+          )}
         </div>
       )}
 

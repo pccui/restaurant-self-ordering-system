@@ -8,6 +8,7 @@ import MainContentWrapper from '@/components/ui/MainContentWrapper'
 import ThemeProvider from '@/components/ui/ThemeProvider'
 import { CartSidebar, CartFloatingButton } from '@/components/order/CartWrapper'
 import ModeBanner from '@/components/ModeBanner'
+import DemoBanner from '@/components/DemoBanner'
 import type { ReactNode } from 'react'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
@@ -34,6 +35,9 @@ export default async function LocaleLayout({ children, params }: { children: Rea
       <body className={`min-h-screen bg-gray-50 dark:bg-gray-900 ${inter.variable} font-sans`}>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ThemeProvider>
+            {/* Demo Banner - Shows credentials and instructions in demo mode */}
+            <DemoBanner />
+
             {/* Mode Banner - Dismissible info about local/server mode */}
             <ModeBanner />
 

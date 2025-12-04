@@ -75,8 +75,10 @@
     "all": "All",
     "sichuan": "Sichuan",
     "xian": "Xi'an",
-    "tasteCharacteristics": "Taste Characteristics",
-    "selected": "selected",
+    "tasteCharacteristics": "Filter by Taste",
+    "hidden": "hidden",
+    "expand": "Show options",
+    "collapse": "Hide options",
     "active": "{count} {count, plural, one {filter} other {filters}} active",
     "reset": "Reset"
   },
@@ -88,7 +90,8 @@
   "nav": {
     "menu": "Menu",
     "basket": "Basket",
-    "showSettings": "Show data mode settings"
+    "showSettings": "Show data mode settings",
+    "showDemoInfo": "Show demo info"
   },
   "common": {
     "dismiss": "Dismiss",
@@ -156,7 +159,10 @@
     "create": "Create",
     "saving": "Saving...",
     "leaveBlankToKeep": "leave blank to keep current",
-    "passwordRequired": "Password is required"
+    "passwordRequired": "Password is required",
+    "refresh": "Refresh",
+    "refreshing": "Refreshing...",
+    "lastUpdated": "Last updated"
   },
   "audit": {
     "title": "Audit Logs",
@@ -179,5 +185,13 @@
     "actionDelete": "Deleted",
     "actionConfirm": "Confirmed",
     "actionStatusChange": "Status Changed"
+  },
+  "demo": {
+    "bannerTitle": "Demo Mode",
+    "howToOrder": "Place an order",
+    "addItems": "Add items to cart and submit",
+    "howToCheck": "View orders",
+    "credentials": "Admin login",
+    "dismiss": "Dismiss"
   }
 }

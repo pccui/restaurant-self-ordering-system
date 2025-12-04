@@ -75,8 +75,10 @@
     "all": "Alle",
     "sichuan": "Sichuan",
     "xian": "Xi'an",
-    "tasteCharacteristics": "Geschmacksmerkmale",
-    "selected": "ausgewählt",
+    "tasteCharacteristics": "Nach Geschmack filtern",
+    "hidden": "ausgeblendet",
+    "expand": "Optionen anzeigen",
+    "collapse": "Optionen ausblenden",
     "active": "{count} {count, plural, one {Filter} other {Filter}} aktiv",
     "reset": "Zurücksetzen"
   },
@@ -88,7 +90,8 @@
   "nav": {
     "menu": "Menü",
     "basket": "Warenkorb",
-    "showSettings": "Datenmodus-Einstellungen anzeigen"
+    "showSettings": "Datenmodus-Einstellungen anzeigen",
+    "showDemoInfo": "Demo-Info anzeigen"
   },
   "common": {
     "dismiss": "Schließen",
@@ -156,7 +159,10 @@
     "create": "Erstellen",
     "saving": "Speichern...",
     "leaveBlankToKeep": "leer lassen um beizubehalten",
-    "passwordRequired": "Passwort ist erforderlich"
+    "passwordRequired": "Passwort ist erforderlich",
+    "refresh": "Aktualisieren",
+    "refreshing": "Aktualisieren...",
+    "lastUpdated": "Zuletzt aktualisiert"
   },
   "audit": {
     "title": "Audit-Protokolle",
@@ -179,5 +185,13 @@
     "actionDelete": "Gelöscht",
     "actionConfirm": "Bestätigt",
     "actionStatusChange": "Status geändert"
+  },
+  "demo": {
+    "bannerTitle": "Demo-Modus",
+    "howToOrder": "Bestellen",
+    "addItems": "Gerichte zum Warenkorb hinzufügen und absenden",
+    "howToCheck": "Bestellungen anzeigen",
+    "credentials": "Admin-Login",
+    "dismiss": "Schließen"
   }
 }

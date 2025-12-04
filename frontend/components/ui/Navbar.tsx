@@ -2,21 +2,27 @@
 import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
 import { usePathname } from 'next/navigation'
+import { Info, Settings, ShoppingCart } from 'lucide-react'
 import LanguageToggle from '@/components/LanguageToggle'
 import ThemeToggle from './ThemeToggle'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Drawer from './Drawer'
 import OrderPanel from '@/components/order/OrderPanel'
 import { useOrderStore } from '@/lib/store/orderStore'
 import { useDataMode } from '@/lib/store/useDataMode'
 import { useRouteMode } from '@/lib/hooks/useRouteMode'
+import { useDemoBanner, DEMO_MODE } from '@/lib/store/useDemoBanner'
 
 // Routes where basket should NOT be displayed
 const EXCLUDED_ROUTES = ['/dashboard', '/login']
 
 function shouldHideBasket(pathname: string): boolean {
   const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}/, '')
-  return EXCLUDED_ROUTES.some(route => pathWithoutLocale.startsWith(route))
+  // Hide on dashboard, login, and browse-only menu (/en/menu without tableId)
+  if (EXCLUDED_ROUTES.some(route => pathWithoutLocale.startsWith(route))) return true
+  // Hide on browse-only route: /menu or /menu/... without tableId
+  if (pathWithoutLocale === '/menu' || pathWithoutLocale.startsWith('/menu/')) return true
+  return false
 }
 
 export default function Navbar() {
@@ -29,21 +35,42 @@ export default function Navbar() {
   const itemCount = items.reduce((sum, item) => sum + item.qty, 0)
   const { bannerDismissed, showBanner } = useDataMode()
   const { showModeToggle } = useRouteMode()
+  const { dismissed: demoBannerDismissed, initialized: demoInitialized, show: showDemoBanner, initialize: initDemoBanner } = useDemoBanner()
   const hideBasket = shouldHideBasket(pathname)
+
+  // Initialize demo banner state from localStorage
+  useEffect(() => {
+    if (DEMO_MODE && !demoInitialized) {
+      initDemoBanner()
+    }
+  }, [demoInitialized, initDemoBanner])
 
   return (
     <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-40">
-      <div className="container flex items-center justify-between py-3">
+      <div className="container flex items-center justify-between px-4 py-4">
         <div className="flex items-center gap-4">
           <Link href={`/${locale}`} className="font-bold text-lg text-primary-600">Restaurant</Link>
           <nav className="hidden sm:flex gap-3">
             <Link href={`/${locale}/menu`} className="text-sm hover:text-primary-600 transition-colors">{t('menu')}</Link>
           </nav>
         </div>
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1 sm:gap-3">
+          {/* Demo info button - visible on all viewports when dismissed */}
+          {DEMO_MODE && demoInitialized && demoBannerDismissed && (
+            <button
+              onClick={showDemoBanner}
+              className="p-2 text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-md transition-colors"
+              aria-label={t('showDemoInfo')}
+              title={t('showDemoInfo')}
+            >
+              <Info className="h-5 w-5" />
+            </button>
+          )}
           <LanguageToggle locale={locale} />
+          {/* Theme toggle - visible on all viewports */}
+          <ThemeToggle />
+          {/* Settings button - hidden on mobile */}
           <div className="hidden sm:flex items-center gap-2">
-            <ThemeToggle />
             {/* Settings button to re-show mode banner (only if local mode is enabled) */}
             {showModeToggle && bannerDismissed && (
               <button
@@ -52,34 +79,20 @@ export default function Navbar() {
                 aria-label={t('showSettings')}
                 title={t('showSettings')}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                  />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+                <Settings className="h-5 w-5" />
               </button>
             )}
           </div>
-          {/* Basket button - only visible on mobile (cart is sidebar on md+), hidden on dashboard/login */}
+          {/* Basket button - only visible on mobile (cart is sidebar on md+), hidden on dashboard/login/browse-only */}
           {!hideBasket && (
             <button
               onClick={() => setOpen(true)}
-              className="md:hidden relative px-3 py-1.5 bg-primary-500 hover:bg-primary-600 text-white rounded-md text-sm font-medium transition-colors"
-              aria-label="Open shopping basket"
+              className="md:hidden relative p-2 bg-primary-500 hover:bg-primary-600 text-white rounded-md transition-colors"
+              aria-label={t('basket')}
             >
-              {t('basket')}
+              <ShoppingCart className="h-5 w-5" />
               {itemCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   {itemCount > 99 ? '99+' : itemCount}
                 </span>
               )}

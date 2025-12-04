@@ -75,8 +75,10 @@
     "all": "全部",
     "sichuan": "川菜",
     "xian": "西安菜",
-    "tasteCharacteristics": "口味特点",
-    "selected": "已选",
+    "tasteCharacteristics": "按口味筛选",
+    "hidden": "已隐藏",
+    "expand": "展开选项",
+    "collapse": "收起选项",
     "active": "{count} 个筛选条件",
     "reset": "重置"
   },
@@ -88,7 +90,8 @@
   "nav": {
     "menu": "菜单",
     "basket": "购物车",
-    "showSettings": "显示数据模式设置"
+    "showSettings": "显示数据模式设置",
+    "showDemoInfo": "显示演示信息"
   },
   "common": {
     "dismiss": "关闭",
@@ -156,7 +159,10 @@
     "create": "创建",
     "saving": "保存中...",
     "leaveBlankToKeep": "留空保持不变",
-    "passwordRequired": "密码为必填项"
+    "passwordRequired": "密码为必填项",
+    "refresh": "刷新",
+    "refreshing": "刷新中...",
+    "lastUpdated": "最后更新"
   },
   "audit": {
     "title": "审计日志",
@@ -179,5 +185,13 @@
     "actionDelete": "删除",
     "actionConfirm": "确认",
     "actionStatusChange": "状态变更"
+  },
+  "demo": {
+    "bannerTitle": "演示模式",
+    "howToOrder": "下单",
+    "addItems": "添加菜品到购物车并提交",
+    "howToCheck": "查看订单",
+    "credentials": "管理员登录",
+    "dismiss": "关闭"
   }
 }

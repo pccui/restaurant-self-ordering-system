@@ -16,6 +16,9 @@ interface SafeUser {
 export class OrderService {
   constructor(@Inject(AuditService) private readonly auditService: AuditService) {}
 
+  // Maximum orders to keep in database (for demo mode cleanup)
+  private readonly MAX_ORDERS = 50;
+
   async createOrder(dto: any) {
     const order = await prisma.order.create({
       data: {
@@ -35,7 +38,43 @@ export class OrderService {
       changes: { after: order as unknown as Record<string, unknown> },
     });
 
+    // Async cleanup: keep only the latest MAX_ORDERS (don't await to avoid slowing response)
+    this.cleanupOldOrders().catch(err => console.error('Order cleanup failed:', err));
+
     return order;
+  }
+
+  /**
+   * Keep only the latest MAX_ORDERS orders in the database.
+   * Deletes oldest orders (hard delete) to save database space in demo mode.
+   */
+  private async cleanupOldOrders(): Promise<void> {
+    const totalCount = await prisma.order.count({
+      where: { deletedAt: null },
+    });
+
+    if (totalCount <= this.MAX_ORDERS) {
+      return; // No cleanup needed
+    }
+
+    const ordersToDelete = totalCount - this.MAX_ORDERS;
+
+    // Find the oldest orders to delete
+    const oldestOrders = await prisma.order.findMany({
+      where: { deletedAt: null },
+      orderBy: { createdAt: 'asc' },
+      take: ordersToDelete,
+      select: { id: true },
+    });
+
+    if (oldestOrders.length > 0) {
+      await prisma.order.deleteMany({
+        where: {
+          id: { in: oldestOrders.map(o => o.id) },
+        },
+      });
+      console.log(`Cleaned up ${oldestOrders.length} old orders to maintain limit of ${this.MAX_ORDERS}`);
+    }
   }
 
   async getOrder(id: string) {

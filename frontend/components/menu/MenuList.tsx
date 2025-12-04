@@ -47,6 +47,9 @@ export default function MenuList() {
   // Modal state for item detail
   const [selectedItem, setSelectedItem] = useState<(MenuItem & Record<string, unknown>) | null>(null)
 
+  // Taste filter section collapsed by default
+  const [tastesExpanded, setTastesExpanded] = useState(false)
+
   // Section refs for scroll-spy
   const sichuanRef = useRef<HTMLElement>(null)
   const xianRef = useRef<HTMLElement>(null)
@@ -146,22 +149,23 @@ export default function MenuList() {
       filtered = filtered.filter((item) => item.category === category)
     }
 
-    // Apply taste filters (AND logic)
+    // Apply taste filters (HIDE items with hidden tastes)
     if (selectedTastes.length > 0) {
       filtered = filtered.filter((item) => {
-        if (!item.tastes || !Array.isArray(item.tastes)) return false
+        if (!item.tastes || !Array.isArray(item.tastes)) return true
 
         const itemTastes = item.tastes.map((taste: Taste) =>
           taste[locale] || taste.en
         )
 
-        // Check if item has ALL selected tastes
-        return selectedTastes.every((selectedTaste) =>
+        // Hide items that have ANY of the hidden tastes
+        const hasHiddenTaste = selectedTastes.some((hiddenTaste) =>
           itemTastes.some((itemTaste) =>
-            itemTaste.toLowerCase().includes(selectedTaste.toLowerCase()) ||
-            selectedTaste.toLowerCase().includes(itemTaste.toLowerCase())
+            itemTaste.toLowerCase().includes(hiddenTaste.toLowerCase()) ||
+            hiddenTaste.toLowerCase().includes(itemTaste.toLowerCase())
           )
         )
+        return !hasHiddenTaste
       })
     }
 
@@ -233,35 +237,72 @@ export default function MenuList() {
           resultCount={hasActiveFilters ? filteredMenu.length : undefined}
         />
 
-        {/* Taste Filters Only (category is handled by CategoryNav) */}
+        {/* Taste Filters - Collapsible */}
         {availableTastes.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {availableTastes.map((taste) => (
-              <button
-                key={taste}
-                onClick={() => {
-                  if (selectedTastes.includes(taste)) {
-                    handleTastesChange(selectedTastes.filter((t) => t !== taste))
-                  } else {
-                    handleTastesChange([...selectedTastes, taste])
-                  }
-                }}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                  selectedTastes.includes(taste)
-                    ? 'bg-primary-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {taste}
-              </button>
-            ))}
-            {selectedTastes.length > 0 && (
-              <button
-                onClick={() => handleTastesChange([])}
-                className="px-3 py-1.5 rounded-full text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors"
-              >
-                {t('filter.clearAll')}
-              </button>
+          <div className="space-y-2">
+            <button
+              onClick={() => setTastesExpanded(!tastesExpanded)}
+              className="flex items-center justify-between w-full py-2 text-left group"
+              aria-expanded={tastesExpanded}
+            >
+              <span className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-gray-900">
+                  {t('filter.tasteCharacteristics')}
+                </span>
+                {selectedTastes.length > 0 && (
+                  <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                    {selectedTastes.length} {t('filter.hidden')}
+                  </span>
+                )}
+              </span>
+              <span className="flex items-center gap-1 text-xs text-gray-500 group-hover:text-gray-700 transition-colors">
+                <span>{tastesExpanded ? t('filter.collapse') : t('filter.expand')}</span>
+                <svg
+                  className={`w-4 h-4 transition-transform duration-200 ${tastesExpanded ? 'rotate-180' : ''}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </span>
+            </button>
+
+            {tastesExpanded && (
+              <div className="flex flex-wrap gap-2">
+                {availableTastes.map((taste) => {
+                  const isHidden = selectedTastes.includes(taste)
+                  return (
+                    <button
+                      key={taste}
+                      onClick={() => {
+                        if (isHidden) {
+                          handleTastesChange(selectedTastes.filter((t) => t !== taste))
+                        } else {
+                          handleTastesChange([...selectedTastes, taste])
+                        }
+                      }}
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                        isHidden
+                          ? 'bg-gray-200 text-gray-400 line-through ring-2 ring-red-300'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {taste}
+                      {isHidden && <span className="ml-1">✕</span>}
+                    </button>
+                  )
+                })}
+                {selectedTastes.length > 0 && (
+                  <button
+                    onClick={() => handleTastesChange([])}
+                    className="px-3 py-1.5 rounded-full text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors"
+                  >
+                    {t('filter.reset')}
+                  </button>
+                )}
+              </div>
             )}
           </div>
         )}

@@ -2,13 +2,10 @@
 import { useRouter, usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
+import { Globe } from 'lucide-react'
 import Select from '@/components/ui/Select'
 
-const LANGUAGES = [
-  { code: 'en', flag: '🇺🇸' },
-  { code: 'zh', flag: '🇨🇳' },
-  { code: 'de', flag: '🇩🇪' },
-] as const
+const LANGUAGES = ['en', 'zh', 'de'] as const
 
 export default function LanguageToggle({ locale }: { locale: string }) {
   const router = useRouter()
@@ -46,10 +43,10 @@ export default function LanguageToggle({ locale }: { locale: string }) {
     setTimeout(() => setIsTransitioning(false), 300)
   }
 
-  const options = LANGUAGES.map((lang) => ({
-    value: lang.code,
-    label: t(lang.code),
-    icon: <span className="text-base">{lang.flag}</span>,
+  const options = LANGUAGES.map((code) => ({
+    value: code,
+    label: t(code),
+    icon: <Globe className="w-4 h-4 text-gray-500" />,
   }))
 
   return (
@@ -59,7 +56,6 @@ export default function LanguageToggle({ locale }: { locale: string }) {
       options={options}
       disabled={isTransitioning}
       aria-label={t('select')}
-      className="min-w-[130px]"
     />
   )
 }

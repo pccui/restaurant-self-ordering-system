@@ -1,5 +1,6 @@
 'use client'
 import React, { useState, useRef, useEffect, useCallback } from 'react'
+import { ChevronDown, Check } from 'lucide-react'
 import clsx from 'clsx'
 
 interface SelectOption {
@@ -122,8 +123,8 @@ export default function Select({
         aria-expanded={isOpen}
         aria-label={ariaLabel}
         className={clsx(
-          'flex items-center justify-between gap-2 px-3 py-2 min-w-[120px]',
-          'bg-white border border-gray-200 rounded-lg text-sm font-medium',
+          'flex items-center justify-between gap-1 sm:gap-2 px-2 sm:px-3 py-1',
+          'bg-white border border-gray-200 rounded text-sm font-medium',
           'transition-all duration-150',
           'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1',
           disabled
@@ -132,22 +133,16 @@ export default function Select({
           isOpen && 'border-primary-500 ring-2 ring-primary-500 ring-offset-1'
         )}
       >
-        <span className="flex items-center gap-2 truncate">
+        <span className="flex items-center gap-1.5 truncate">
           {selectedOption?.icon}
           <span>{selectedOption?.label || placeholder}</span>
         </span>
-        <svg
+        <ChevronDown
           className={clsx(
             'w-4 h-4 text-gray-500 transition-transform duration-200',
             isOpen && 'rotate-180'
           )}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-        </svg>
+        />
       </button>
 
       {/* Dropdown Menu */}
@@ -159,7 +154,7 @@ export default function Select({
             highlightedIndex >= 0 ? `select-option-${highlightedIndex}` : undefined
           }
           className={clsx(
-            'absolute z-50 mt-1 w-full min-w-[160px]',
+            'absolute z-50 mt-1 right-0',
             'bg-white border border-gray-200 rounded-lg shadow-lg',
             'py-1 max-h-60 overflow-auto',
             'animate-in fade-in-0 zoom-in-95'
@@ -177,7 +172,7 @@ export default function Select({
               }}
               onMouseEnter={() => setHighlightedIndex(index)}
               className={clsx(
-                'flex items-center gap-2 px-3 py-2 text-sm cursor-pointer',
+                'flex items-center gap-2 px-3 py-1.5 text-sm cursor-pointer whitespace-nowrap',
                 'transition-colors duration-100',
                 option.value === value
                   ? 'bg-primary-50 text-primary-700 font-medium'
@@ -188,15 +183,7 @@ export default function Select({
               {option.icon}
               <span className="flex-1">{option.label}</span>
               {option.value === value && (
-                <svg
-                  className="w-4 h-4 text-primary-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2.5}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
+                <Check className="w-4 h-4 text-primary-600" />
               )}
             </li>
           ))}

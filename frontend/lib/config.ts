@@ -15,3 +15,10 @@ export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:300
  * Defaults to false for production deployments
  */
 export const ENABLE_LOCAL_MODE = process.env.NEXT_PUBLIC_ENABLE_LOCAL_MODE === 'true';
+
+/**
+ * Enable demo mode (shows admin credentials banner)
+ * When true, shows a dismissible banner with login credentials and usage instructions
+ * Defaults to false for production deployments
+ */
+export const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
