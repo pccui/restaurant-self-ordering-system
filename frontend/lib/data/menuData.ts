@@ -16,8 +16,8 @@ export const menuData: Menu = [
       { "zh": "花椒", "en": "Sichuan Peppercorn", "de": "Szechuanpfeffer" },
       { "zh": "干辣椒", "en": "Dried Chili Pepper", "de": "Getrocknete Chili" }
     ],
-    "thumbnailUrl": "/images/mapo-tofu-thumb.png",
-    "imageUrl": "/images/mapo-tofu.png",
+    "thumbnailUrl": "/images/mapo-tofu-thumb.webp",
+    "imageUrl": "/images/mapo-tofu.webp",
     "translations": {
       zh: {
         name: "麻婆豆腐",
@@ -52,8 +52,8 @@ export const menuData: Menu = [
       { "zh": "花椒", "en": "Sichuan Peppercorn", "de": "Szechuanpfeffer" },
       { "zh": "豆瓣酱", "en": "Doubanjiang", "de": "Doubanjiang" }
     ],
-    "thumbnailUrl": "/images/shuizhu-yu-thumb.png",
-    "imageUrl": "/images/shuizhu-yu.png",
+    "thumbnailUrl": "/images/shuizhu-yu-thumb.webp",
+    "imageUrl": "/images/shuizhu-yu.webp",
     translations: {
       zh: {
         name: "水煮鱼",
@@ -87,8 +87,8 @@ export const menuData: Menu = [
       { zh: "郫县豆瓣酱", en: "Pixian Doubanjiang", de: "Pixian Doubanjiang" },
       { zh: "甜面酱", en: "Sweet Bean Paste", de: "Süße Bohnenpaste" }
     ],
-    thumbnailUrl: "/images/huiguo-rou-thumb.png",
-    imageUrl: "/images/huiguo-rou.png",
+    thumbnailUrl: "/images/huiguo-rou-thumb.webp",
+    imageUrl: "/images/huiguo-rou.webp",
     translations: {
       zh: {
         name: "回锅肉",
@@ -124,8 +124,8 @@ export const menuData: Menu = [
       { zh: "白糖", en: "White Sugar", de: "Weißer Zucker" },
       { zh: "醋", en: "Vinegar", de: "Essig" }
     ],
-    thumbnailUrl: "/images/yuxiang-rousi-thumb.png",
-    imageUrl: "/images/yuxiang-rousi.png",
+    thumbnailUrl: "/images/yuxiang-rousi-thumb.webp",
+    imageUrl: "/images/yuxiang-rousi.webp",
     translations: {
       zh: {
         name: "鱼香肉丝",
@@ -160,8 +160,8 @@ export const menuData: Menu = [
       { zh: "胡萝卜", en: "Carrot", de: "Karotte" },
       { zh: "花椒", en: "Sichuan Peppercorn", de: "Szechuanpfeffer" }
     ],
-    thumbnailUrl: "/images/kungpao-chicken-thumb.png",
-    imageUrl: "/images/kungpao-chicken.png",
+    thumbnailUrl: "/images/kungpao-chicken-thumb.webp",
+    imageUrl: "/images/kungpao-chicken.webp",
     translations: {
       zh: {
         name: "宫保鸡丁",
@@ -198,8 +198,8 @@ export const menuData: Menu = [
       { zh: "花椒", en: "Sichuan Peppercorn", de: "Szechuanpfeffer" },
       { zh: "豆瓣酱", en: "Doubanjiang", de: "Doubanjiang" }
     ],
-    thumbnailUrl: "/images/maoxue-wang-thumb.png",
-    imageUrl: "/images/maoxue-wang.png",
+    thumbnailUrl: "/images/maoxue-wang-thumb.webp",
+    imageUrl: "/images/maoxue-wang.webp",
     translations: {
       zh: {
         name: "毛血旺",
@@ -236,8 +236,8 @@ export const menuData: Menu = [
       { zh: "白糖", en: "White Sugar", de: "Weißer Zucker" },
       { zh: "芝麻", en: "Sesame", de: "Sesam" }
     ],
-    thumbnailUrl: "/images/fuqi-feipian-thumb.png",
-    imageUrl: "/images/fuqi-feipian.png",
+    thumbnailUrl: "/images/fuqi-feipian-thumb.webp",
+    imageUrl: "/images/fuqi-feipian.webp",
     translations: {
       zh: {
         name: "夫妻肺片",
@@ -273,8 +273,8 @@ export const menuData: Menu = [
       { zh: "香叶", en: "Bay Leaf", de: "Lorbeerblatt" },
       { zh: "料酒", en: "Cooking Wine", de: "Kochwein" }
     ],
-    thumbnailUrl: "/images/dongpo-zhouzi-thumb.png",
-    imageUrl: "/images/dongpo-zhouzi.png",
+    thumbnailUrl: "/images/dongpo-zhouzi-thumb.webp",
+    imageUrl: "/images/dongpo-zhouzi.webp",
     translations: {
       zh: {
         name: "东坡肘子",
@@ -310,8 +310,8 @@ export const menuData: Menu = [
       { zh: "淀粉", en: "Starch", de: "Stärke" },
       { zh: "芝麻", en: "Sesame", de: "Sesam" }
     ],
-    thumbnailUrl: "/images/lazi-ji-thumb.png",
-    imageUrl: "/images/lazi-ji.png",
+    thumbnailUrl: "/images/lazi-ji-thumb.webp",
+    imageUrl: "/images/lazi-ji.webp",
     translations: {
       zh: {
         name: "辣子鸡",
@@ -347,8 +347,8 @@ export const menuData: Menu = [
       { zh: "盐", en: "Salt", de: "Salz" },
       { zh: "酱油", en: "Soy Sauce", de: "Sojasauce" }
     ],
-    thumbnailUrl: "/images/ganbian-sijidou-thumb.png",
-    imageUrl: "/images/ganbian-sijidou.png",
+    thumbnailUrl: "/images/ganbian-sijidou-thumb.webp",
+    imageUrl: "/images/ganbian-sijidou.webp",
     translations: {
       zh: {
         name: "干煸四季豆",
@@ -385,8 +385,8 @@ export const menuData: Menu = [
       { zh: "料酒", en: "Cooking Wine", de: "Kochwein" },
       { zh: "酱油", en: "Soy Sauce", de: "Sojasauce" }
     ],
-    thumbnailUrl: "/images/roujiamo-thumb.png",
-    imageUrl: "/images/roujiamo.png",
+    thumbnailUrl: "/images/roujiamo-thumb.webp",
+    imageUrl: "/images/roujiamo.webp",
     translations: {
       zh: {
         name: "肉夹馍",
@@ -423,8 +423,8 @@ export const menuData: Menu = [
       { zh: "花椒", en: "Sichuan Peppercorn", de: "Szechuanpfeffer" },
       { zh: "姜片", en: "Ginger Slices", de: "Ingwerscheiben" }
     ],
-    thumbnailUrl: "/images/yangrou-paomo-thumb.png",
-    imageUrl: "/images/yangrou-paomo.png",
+    thumbnailUrl: "/images/yangrou-paomo-thumb.webp",
+    imageUrl: "/images/yangrou-paomo.webp",
     translations: {
       zh: {
         name: "羊肉泡馍",
@@ -461,8 +461,8 @@ export const menuData: Menu = [
       { zh: "蒜末", en: "Minced Garlic", de: "Gehackter Knoblauch" },
       { zh: "辣椒面", en: "Chili Powder", de: "Chilipulver" }
     ],
-    thumbnailUrl: "/images/biangbiang-mian-thumb.png",
-    imageUrl: "/images/biangbiang-mian.png",
+    thumbnailUrl: "/images/biangbiang-mian-thumb.webp",
+    imageUrl: "/images/biangbiang-mian.webp",
     translations: {
       zh: {
         name: "BiangBiang面",
@@ -495,8 +495,8 @@ export const menuData: Menu = [
       { zh: "葡萄干", en: "Raisins", de: "Rosinen" },
       { zh: "豆沙", en: "Red Bean Paste", de: "Rote Bohnenpaste" }
     ],
-    thumbnailUrl: "/images/zeng-gao-thumb.png",
-    imageUrl: "/images/zeng-gao.png",
+    thumbnailUrl: "/images/zeng-gao-thumb.webp",
+    imageUrl: "/images/zeng-gao.webp",
     translations: {
       zh: {
         name: "甑糕",
@@ -533,8 +533,8 @@ export const menuData: Menu = [
       { zh: "淀粉", en: "Starch", de: "Stärke" },
       { zh: "椒盐", en: "Pepper Salt", de: "Pfeffersalz" }
     ],
-    thumbnailUrl: "/images/hulu-ji-thumb.png",
-    imageUrl: "/images/hulu-ji.png",
+    thumbnailUrl: "/images/hulu-ji-thumb.webp",
+    imageUrl: "/images/hulu-ji.webp",
     translations: {
       zh: {
         name: "葫芦鸡",
@@ -571,8 +571,8 @@ export const menuData: Menu = [
       { zh: "芝麻", en: "Sesame", de: "Sesam" },
       { zh: "食用油", en: "Cooking Oil", de: "Speiseöl" }
     ],
-    thumbnailUrl: "/images/youpo-mian-thumb.png",
-    imageUrl: "/images/youpo-mian.png",
+    thumbnailUrl: "/images/youpo-mian-thumb.webp",
+    imageUrl: "/images/youpo-mian.webp",
     translations: {
       zh: {
         name: "油泼面",
@@ -610,8 +610,8 @@ export const menuData: Menu = [
       { zh: "蒜水", en: "Garlic Water", de: "Knoblauchwasser" },
       { zh: "芝麻酱", en: "Sesame Paste", de: "Sesampaste" }
     ],
-    thumbnailUrl: "/images/liangpi-thumb.png",
-    imageUrl: "/images/liangpi.png",
+    thumbnailUrl: "/images/liangpi-thumb.webp",
+    imageUrl: "/images/liangpi.webp",
     translations: {
       zh: {
         name: "凉皮",
@@ -647,8 +647,8 @@ export const menuData: Menu = [
       { zh: "酱油", en: "Soy Sauce", de: "Sojasauce" },
       { zh: "盐", en: "Salt", de: "Salz" }
     ],
-    thumbnailUrl: "/images/guantang-bao-thumb.png",
-    imageUrl: "/images/guantang-bao.png",
+    thumbnailUrl: "/images/guantang-bao-thumb.webp",
+    imageUrl: "/images/guantang-bao.webp",
     translations: {
       zh: {
         name: "灌汤包",
@@ -686,8 +686,8 @@ export const menuData: Menu = [
       { zh: "葱段", en: "Scallion Sections", de: "Frühlingszwiebelstücke" },
       { zh: "酱油", en: "Soy Sauce", de: "Sojasauce" }
     ],
-    thumbnailUrl: "/images/huimashi-thumb.png",
-    imageUrl: "/images/huimashi.png",
+    thumbnailUrl: "/images/huimashi-thumb.webp",
+    imageUrl: "/images/huimashi.webp",
     translations: {
       zh: {
         name: "烩麻食",
@@ -719,8 +719,8 @@ export const menuData: Menu = [
       { zh: "面粉", en: "Flour", de: "Mehl" },
       { zh: "糖", en: "Sugar", de: "Zucker" }
     ],
-    thumbnailUrl: "/images/huanggui-shibing-thumb.png",
-    imageUrl: "/images/huanggui-shibing.png",
+    thumbnailUrl: "/images/huanggui-shibing-thumb.webp",
+    imageUrl: "/images/huanggui-shibing.webp",
     translations: {
       zh: {
         name: "黄桂柿子饼",

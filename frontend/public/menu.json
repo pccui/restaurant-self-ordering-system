@@ -42,8 +42,8 @@
         "de": "Getrocknete Chili"
       }
     ],
-    "thumbnailUrl": "/images/mapo-tofu-thumb.png",
-    "imageUrl": "/images/mapo-tofu.png",
+    "thumbnailUrl": "/images/mapo-tofu-thumb.webp",
+    "imageUrl": "/images/mapo-tofu.webp",
     "translations": {
       "zh": {
         "name": "麻婆豆腐",
@@ -110,8 +110,8 @@
         "de": "Doubanjiang"
       }
     ],
-    "thumbnailUrl": "/images/shuizhu-yu-thumb.png",
-    "imageUrl": "/images/shuizhu-yu.png",
+    "thumbnailUrl": "/images/shuizhu-yu-thumb.webp",
+    "imageUrl": "/images/shuizhu-yu.webp",
     "translations": {
       "zh": {
         "name": "水煮鱼",
@@ -173,8 +173,8 @@
         "de": "Süße Bohnenpaste"
       }
     ],
-    "thumbnailUrl": "/images/huiguo-rou-thumb.png",
-    "imageUrl": "/images/huiguo-rou.png",
+    "thumbnailUrl": "/images/huiguo-rou-thumb.webp",
+    "imageUrl": "/images/huiguo-rou.webp",
     "translations": {
       "zh": {
         "name": "回锅肉",
@@ -246,8 +246,8 @@
         "de": "Essig"
       }
     ],
-    "thumbnailUrl": "/images/yuxiang-rousi-thumb.png",
-    "imageUrl": "/images/yuxiang-rousi.png",
+    "thumbnailUrl": "/images/yuxiang-rousi-thumb.webp",
+    "imageUrl": "/images/yuxiang-rousi.webp",
     "translations": {
       "zh": {
         "name": "鱼香肉丝",
@@ -314,8 +314,8 @@
         "de": "Szechuanpfeffer"
       }
     ],
-    "thumbnailUrl": "/images/kungpao-chicken-thumb.png",
-    "imageUrl": "/images/kungpao-chicken.png",
+    "thumbnailUrl": "/images/kungpao-chicken-thumb.webp",
+    "imageUrl": "/images/kungpao-chicken.webp",
     "translations": {
       "zh": {
         "name": "宫保鸡丁",
@@ -392,8 +392,8 @@
         "de": "Doubanjiang"
       }
     ],
-    "thumbnailUrl": "/images/maoxue-wang-thumb.png",
-    "imageUrl": "/images/maoxue-wang.png",
+    "thumbnailUrl": "/images/maoxue-wang-thumb.webp",
+    "imageUrl": "/images/maoxue-wang.webp",
     "translations": {
       "zh": {
         "name": "毛血旺",
@@ -470,8 +470,8 @@
         "de": "Sesam"
       }
     ],
-    "thumbnailUrl": "/images/fuqi-feipian-thumb.png",
-    "imageUrl": "/images/fuqi-feipian.png",
+    "thumbnailUrl": "/images/fuqi-feipian-thumb.webp",
+    "imageUrl": "/images/fuqi-feipian.webp",
     "translations": {
       "zh": {
         "name": "夫妻肺片",
@@ -543,8 +543,8 @@
         "de": "Kochwein"
       }
     ],
-    "thumbnailUrl": "/images/dongpo-zhouzi-thumb.png",
-    "imageUrl": "/images/dongpo-zhouzi.png",
+    "thumbnailUrl": "/images/dongpo-zhouzi-thumb.webp",
+    "imageUrl": "/images/dongpo-zhouzi.webp",
     "translations": {
       "zh": {
         "name": "东坡肘子",
@@ -616,8 +616,8 @@
         "de": "Sesam"
       }
     ],
-    "thumbnailUrl": "/images/lazi-ji-thumb.png",
-    "imageUrl": "/images/lazi-ji.png",
+    "thumbnailUrl": "/images/lazi-ji-thumb.webp",
+    "imageUrl": "/images/lazi-ji.webp",
     "translations": {
       "zh": {
         "name": "辣子鸡",
@@ -689,8 +689,8 @@
         "de": "Sojasauce"
       }
     ],
-    "thumbnailUrl": "/images/ganbian-sijidou-thumb.png",
-    "imageUrl": "/images/ganbian-sijidou.png",
+    "thumbnailUrl": "/images/ganbian-sijidou-thumb.webp",
+    "imageUrl": "/images/ganbian-sijidou.webp",
     "translations": {
       "zh": {
         "name": "干煸四季豆",
@@ -767,8 +767,8 @@
         "de": "Sojasauce"
       }
     ],
-    "thumbnailUrl": "/images/roujiamo-thumb.png",
-    "imageUrl": "/images/roujiamo.png",
+    "thumbnailUrl": "/images/roujiamo-thumb.webp",
+    "imageUrl": "/images/roujiamo.webp",
     "translations": {
       "zh": {
         "name": "肉夹馍",
@@ -845,8 +845,8 @@
         "de": "Ingwerscheiben"
       }
     ],
-    "thumbnailUrl": "/images/yangrou-paomo-thumb.png",
-    "imageUrl": "/images/yangrou-paomo.png",
+    "thumbnailUrl": "/images/yangrou-paomo-thumb.webp",
+    "imageUrl": "/images/yangrou-paomo.webp",
     "translations": {
       "zh": {
         "name": "羊肉泡馍",
@@ -923,8 +923,8 @@
         "de": "Chilipulver"
       }
     ],
-    "thumbnailUrl": "/images/biangbiang-mian-thumb.png",
-    "imageUrl": "/images/biangbiang-mian.png",
+    "thumbnailUrl": "/images/biangbiang-mian-thumb.webp",
+    "imageUrl": "/images/biangbiang-mian.webp",
     "translations": {
       "zh": {
         "name": "BiangBiang面",
@@ -981,8 +981,8 @@
         "de": "Rote Bohnenpaste"
       }
     ],
-    "thumbnailUrl": "/images/zeng-gao-thumb.png",
-    "imageUrl": "/images/zeng-gao.png",
+    "thumbnailUrl": "/images/zeng-gao-thumb.webp",
+    "imageUrl": "/images/zeng-gao.webp",
     "translations": {
       "zh": {
         "name": "甑糕",
@@ -1059,8 +1059,8 @@
         "de": "Pfeffersalz"
       }
     ],
-    "thumbnailUrl": "/images/hulu-ji-thumb.png",
-    "imageUrl": "/images/hulu-ji.png",
+    "thumbnailUrl": "/images/hulu-ji-thumb.webp",
+    "imageUrl": "/images/hulu-ji.webp",
     "translations": {
       "zh": {
         "name": "葫芦鸡",
@@ -1137,8 +1137,8 @@
         "de": "Speiseöl"
       }
     ],
-    "thumbnailUrl": "/images/youpo-mian-thumb.png",
-    "imageUrl": "/images/youpo-mian.png",
+    "thumbnailUrl": "/images/youpo-mian-thumb.webp",
+    "imageUrl": "/images/youpo-mian.webp",
     "translations": {
       "zh": {
         "name": "油泼面",
@@ -1220,8 +1220,8 @@
         "de": "Sesampaste"
       }
     ],
-    "thumbnailUrl": "/images/liangpi-thumb.png",
-    "imageUrl": "/images/liangpi.png",
+    "thumbnailUrl": "/images/liangpi-thumb.webp",
+    "imageUrl": "/images/liangpi.webp",
     "translations": {
       "zh": {
         "name": "凉皮",
@@ -1293,8 +1293,8 @@
         "de": "Salz"
       }
     ],
-    "thumbnailUrl": "/images/guantang-bao-thumb.png",
-    "imageUrl": "/images/guantang-bao.png",
+    "thumbnailUrl": "/images/guantang-bao-thumb.webp",
+    "imageUrl": "/images/guantang-bao.webp",
     "translations": {
       "zh": {
         "name": "灌汤包",
@@ -1376,8 +1376,8 @@
         "de": "Sojasauce"
       }
     ],
-    "thumbnailUrl": "/images/huimashi-thumb.png",
-    "imageUrl": "/images/huimashi.png",
+    "thumbnailUrl": "/images/huimashi-thumb.webp",
+    "imageUrl": "/images/huimashi.webp",
     "translations": {
       "zh": {
         "name": "烩麻食",
@@ -1429,8 +1429,8 @@
         "de": "Zucker"
       }
     ],
-    "thumbnailUrl": "/images/huanggui-shibing-thumb.png",
-    "imageUrl": "/images/huanggui-shibing.png",
+    "thumbnailUrl": "/images/huanggui-shibing-thumb.webp",
+    "imageUrl": "/images/huanggui-shibing.webp",
     "translations": {
       "zh": {
         "name": "黄桂柿子饼",
