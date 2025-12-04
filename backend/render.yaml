@@ -10,8 +10,9 @@ services:
     buildCommand: |
       npm install -g pnpm &&
       pnpm install &&
-      pnpm turbo build --filter=backend &&
-      pnpm --filter backend exec prisma generate
+      pnpm build:shared &&
+      pnpm --filter backend exec prisma generate &&
+      pnpm --filter backend build
     startCommand: pnpm start:backend
     envVars:
       - key: NODE_ENV
@@ -20,8 +21,8 @@ services:
         value: 10000
       - key: DATABASE_URL
         sync: false # Set manually in Render dashboard (Supabase connection string)
-      - key: FRONTEND_URL
-        sync: false # Set manually (Vercel frontend URL)
+      - key: FRONTEND_URLS
+        sync: false # Set manually (comma-separated frontend URLs for CORS)
       - key: JWT_SECRET
         generateValue: true
     healthCheckPath: /api/health
