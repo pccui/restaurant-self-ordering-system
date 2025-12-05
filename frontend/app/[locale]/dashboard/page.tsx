@@ -428,40 +428,42 @@ export default function OrdersPage() {
         title={t('editOrderTitle')}
       >
         <div className="p-6 space-y-6">
+          {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
+
           {/* Order Info */}
           {orderToEdit && (
             <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
-              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                {t('table')} <span className="text-gray-900 dark:text-white font-semibold">{orderToEdit.tableId}</span>
+              <p className="text-base font-medium text-gray-700 dark:text-gray-300">
+                {t('table')} <span className="text-gray-900 dark:text-white font-bold ml-1 text-lg">{orderToEdit.tableId}</span>
               </p>
-              <span className="text-xs px-2 py-1 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+              <span className="text-sm font-medium px-3 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200">
                 {t('statusPending')}
               </span>
             </div>
           )}
 
           {/* Editable Items */}
-          <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+          <div className="space-y-3 max-h-[60vh] overflow-y-auto px-1 py-1">
             {editedItems.map((item, idx) => (
-              <div key={idx} className="flex items-center justify-between gap-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700">
-                <span className="text-base font-medium text-gray-900 dark:text-white flex-1">
+              <div key={idx} className="flex items-center justify-between gap-4 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all hover:shadow-md">
+                <span className="text-base font-medium text-gray-900 dark:text-gray-100 flex-1">
                   {item.name}
                 </span>
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => handleItemQtyChange(idx, item.qty - 1)}
-                    className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-gray-700 shadow-sm border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 active:scale-95 transition-all"
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 active:scale-95 transition-all"
                   >
                     −
                   </button>
-                  <span className="w-6 text-center text-base font-semibold text-gray-900 dark:text-white">{item.qty}</span>
+                  <span className="w-8 text-center text-base font-semibold text-gray-900 dark:text-white">{item.qty}</span>
                   <button
                     onClick={() => handleItemQtyChange(idx, item.qty + 1)}
-                    className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-gray-700 shadow-sm border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 active:scale-95 transition-all"
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 active:scale-95 transition-all"
                   >
                     +
                   </button>
-                  <span className="text-base font-medium text-gray-900 dark:text-white w-20 text-right tabular-nums">
+                  <span className="text-sm font-semibold text-gray-900 dark:text-white w-24 text-right tabular-nums">
                     {formatCurrency(item.priceCents * item.qty)}
                   </span>
                 </div>
@@ -469,8 +471,8 @@ export default function OrdersPage() {
             ))}
 
             {editedItems.length === 0 && (
-              <div className="text-center py-8 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
-                <p className="text-gray-500 dark:text-gray-400">
+              <div className="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+                <p className="text-gray-500 dark:text-gray-400 font-medium">
                   {t('noItems')}
                 </p>
               </div>
@@ -480,9 +482,9 @@ export default function OrdersPage() {
           {/* Footer Section */}
           <div className="space-y-4 pt-2">
             {/* New Total */}
-            <div className="flex justify-between items-center p-4 bg-primary-50 dark:bg-primary-900/10 rounded-xl border border-primary-100 dark:border-primary-900/20">
-              <span className="font-medium text-primary-900 dark:text-primary-100">{t('newTotal')}</span>
-              <span className="font-bold text-2xl text-primary-700 dark:text-primary-300">
+            <div className="flex justify-between items-center p-5 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+              <span className="text-base font-medium text-gray-600 dark:text-gray-400">{t('newTotal')}</span>
+              <span className="font-bold text-2xl text-gray-900 dark:text-white tracking-tight">
                 {formatCurrency(editedTotal)}
               </span>
             </div>

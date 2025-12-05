@@ -1,5 +1,6 @@
 'use client'
-import React, { useEffect, useRef, useCallback } from 'react'
+import React, { useEffect, useRef, useCallback, useState } from 'react'
+import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 
 interface DialogProps {
@@ -21,6 +22,11 @@ const sizeClasses = {
 export default function Dialog({ open, onClose, children, size = 'xl', title }: DialogProps) {
   const dialogRef = useRef<HTMLDivElement>(null)
   const previousActiveElement = useRef<Element | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Handle escape key
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -58,11 +64,11 @@ export default function Dialog({ open, onClose, children, size = 'xl', title }: 
     }
   }, [open, handleKeyDown])
 
-  if (!open) return null
+  if (!open || !mounted) return null
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
       role="presentation"
     >
       {/* Overlay with fade animation */}
@@ -80,7 +86,7 @@ export default function Dialog({ open, onClose, children, size = 'xl', title }: 
         aria-labelledby={title ? 'dialog-title' : undefined}
         tabIndex={-1}
         className={clsx(
-          'relative w-full bg-white rounded-xl shadow-2xl',
+          'relative w-full bg-white dark:bg-gray-900 rounded-xl shadow-2xl',
           'transform transition-all duration-200 ease-out',
           'animate-in fade-in-0 zoom-in-95',
           'max-h-[90vh] overflow-hidden flex flex-col',
@@ -88,18 +94,18 @@ export default function Dialog({ open, onClose, children, size = 'xl', title }: 
         )}
       >
         {/* Header with close button */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-100">
+        <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
           {title && (
-            <h2 id="dialog-title" className="text-lg font-semibold text-gray-900">
+            <h2 id="dialog-title" className="text-lg font-semibold text-gray-900 dark:text-white">
               {title}
             </h2>
           )}
           <button
             onClick={onClose}
-            className="ml-auto p-2 rounded-full hover:bg-gray-100 transition-colors"
+            className="ml-auto p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             aria-label="Close dialog"
           >
-            <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -110,6 +116,7 @@ export default function Dialog({ open, onClose, children, size = 'xl', title }: 
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
