@@ -15,17 +15,19 @@ import { Response as ExpressResponse, Request as ExpressRequest } from 'express'
 import { AuthService, SafeUser } from './auth.service';
 
 // Cookie configuration
+const isProduction = process.env.NODE_ENV === 'production';
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
+  secure: isProduction,
+  // Cross-site cookie (frontend domain != backend domain) requires sameSite: 'none' and secure: true
+  sameSite: (isProduction ? 'none' : 'lax') as 'none' | 'lax',
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   path: '/',
 };
 
 @Controller('auth')
 export class AuthController {
-  constructor(@Inject(AuthService) private authService: AuthService) {}
+  constructor(@Inject(AuthService) private authService: AuthService) { }
 
   @UseGuards(AuthGuard('local'))
   @Post('login')
