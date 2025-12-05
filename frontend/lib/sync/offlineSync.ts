@@ -16,7 +16,7 @@ export async function syncPendingOrders() {
   const pending = (await localforage.getItem('pendingOrders')) as Order[] || [];
   if (!pending.length) return { synced: 0 };
   try {
-    const res = await fetch('/api/online/sync', {
+    const res = await fetch('/api/sync', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(pending)

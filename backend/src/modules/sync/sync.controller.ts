@@ -1,7 +1,7 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { OrderService } from '../order/order.service';
 
-@Controller('api/online/sync')
+@Controller('sync')
 export class SyncController {
   constructor(private readonly orderService: OrderService) {}
 

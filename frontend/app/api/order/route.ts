@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     console.log('Received order:', body);
 
     // Forward to backend
-    const backendRes = await fetch(`${API_BASE}/api/online/order`, {
+    const backendRes = await fetch(`${API_BASE}/api/order`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
     // Forward cookies for authentication
     const cookies = request.headers.get('cookie') || '';
 
-    const backendRes = await fetch(`${API_BASE}/api/online/order`, {
+    const backendRes = await fetch(`${API_BASE}/api/order`, {
       headers: {
         'Cookie': cookies,
       },

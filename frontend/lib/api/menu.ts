@@ -6,7 +6,7 @@ import localforage from 'localforage';
  * Used when data mode is 'server'
  */
 export async function fetchMenuServer(): Promise<Menu> {
-  const res = await fetch('/api/online/menu').then(r => r.json()).catch(()=>[]);
+  const res = await fetch('/api/menu').then(r => r.json()).catch(()=>[]);
   return MenuSchema.parse(res);
 }
 

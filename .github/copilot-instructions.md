@@ -51,7 +51,7 @@ translations: {
 
 ### 3. Local/Server Mode Pattern
 **All write operations** must support local mode:
-1. Try server API (`/api/online/order`)
+1. Try server API (`/api/order`)
 2. If fails, queue via `queueOrderForSync()` in IndexedDB
 3. Background sync via `syncPendingOrdersToServer()` when server available
 
@@ -79,7 +79,7 @@ export class MenuService {
 ### 5. Frontend Patterns
 - **App Router structure**:
   - Routes in `app/` with `route.ts` for API endpoints
-  - API handlers: `app/api/online/menu/route.ts`, `app/api/online/order/route.ts`
+  - API handlers: `app/api/menu/route.ts`, `app/api/order/route.ts`
   - Data/utilities in `lib/`: `lib/api/`, `lib/data/`, `lib/store/`, `lib/sync/`
 - **Locale routing**: `app/[locale]/layout.tsx` handles i18n setup
 - **State management**: Zustand stores in `lib/store/` (e.g., `orderStore` for cart)
@@ -99,8 +99,8 @@ export class MenuService {
 - Offline: Fetch once, cache in IndexedDB via localforage
 
 **Order Flow**:
-- Online: FE → `/api/online/order` → Backend → Prisma
-- Offline: FE → IndexedDB queue → background sync → `/api/online/sync`
+- Online: FE → `/api/order` → Backend → Prisma
+- Offline: FE → IndexedDB queue → background sync → `/api/sync`
 
 ## Key Files Reference
 - `docs/architecture.md` — Comprehensive architecture decisions

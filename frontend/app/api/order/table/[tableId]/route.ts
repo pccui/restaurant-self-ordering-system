@@ -13,7 +13,7 @@ export async function GET(
   }
 
   try {
-    const backendRes = await fetch(`${API_BASE}/api/online/order/table/${tableId}`);
+    const backendRes = await fetch(`${API_BASE}/api/order/table/${tableId}`);
 
     if (!backendRes.ok) {
       if (backendRes.status === 404) {

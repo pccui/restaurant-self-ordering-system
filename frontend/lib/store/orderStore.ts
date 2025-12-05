@@ -95,7 +95,7 @@ export const useOrderStore = create<OrderState>()(
 
     fetchOrderFromServer: async (tableId) => {
       try {
-        const response = await fetch(`/api/online/order/table/${tableId}`);
+        const response = await fetch(`/api/order/table/${tableId}`);
         if (!response.ok) {
           if (response.status === 404) {
             // No active order for this table on server

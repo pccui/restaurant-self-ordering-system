@@ -55,7 +55,7 @@ export async function syncPendingOrdersToServer(maxRetries = 3): Promise<SyncRes
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      const res = await fetch('/api/online/sync', {
+      const res = await fetch('/api/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(pending)
@@ -89,7 +89,7 @@ export async function syncPendingOrdersToServer(maxRetries = 3): Promise<SyncRes
  */
 export async function syncOrderToServer(order: Order): Promise<boolean> {
   try {
-    const res = await fetch('/api/online/order', {
+    const res = await fetch('/api/order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(order)

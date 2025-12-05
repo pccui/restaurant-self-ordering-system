@@ -13,7 +13,7 @@ interface SafeUser {
   role: string;
 }
 
-@Controller('online/order')
+@Controller('order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 

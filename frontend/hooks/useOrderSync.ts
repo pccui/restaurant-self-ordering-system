@@ -33,7 +33,7 @@ export function useOrderSync() {
     if (!activeOrder || activeOrder.placedAt === 0) return
 
     try {
-      const response = await fetch(`/api/online/order/${activeOrder.id}`)
+      const response = await fetch(`/api/order/${activeOrder.id}`)
       if (!response.ok) {
         if (response.status === 404) {
           // Order not found on server, might need to re-sync

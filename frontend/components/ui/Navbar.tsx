@@ -87,7 +87,7 @@ export default function Navbar() {
           {!hideBasket && (
             <button
               onClick={() => setOpen(true)}
-              className="md:hidden relative p-2 bg-primary-500 hover:bg-primary-600 text-white rounded-md transition-colors"
+              className="md:hidden relative p-1 bg-primary-500 hover:bg-primary-600 text-white rounded transition-colors"
               aria-label={t('basket')}
             >
               <ShoppingCart className="h-5 w-5" />
