@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
+import { Pencil, Check, ChefHat, CreditCard, Clock, CheckCircle } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useOrderStore, type OrderItem, type PlacedOrder } from '@/lib/store/orderStore'
 import { useMenuStore } from '@/lib/store/menuStore'
@@ -28,15 +29,29 @@ export default function OrderPanel() {
   const updateQty = useOrderStore((s) => s.updateQty)
   const clearCart = useOrderStore((s) => s.clearCart)
   const placeOrder = useOrderStore((s) => s.placeOrder)
-  const canEditOrder = useOrderStore((s) => s.canEditOrder)
-  const isOrderPlaced = useOrderStore((s) => s.isOrderPlaced)
-  const totalCents = useOrderStore((s) => s.totalCents)()
+  const isSyncing = useOrderStore((s) => s.isSyncing)
+  const syncOrderChanges = useOrderStore((s) => s.syncOrderChanges)
+  const hasUnsavedChanges = useOrderStore((s) => s.hasUnsavedChanges) // Subscribe to state directly
   const menu = useMenuStore((s) => s.menu || [])
   const { mode, canOrder } = useRouteMode()
 
   const { minutes, seconds, isEditable, isExpired } = useOrderTimer()
   const { refetch: syncOrderStatus } = useOrderSync()
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Compute derived values directly from activeOrder for proper reactivity
+  const orderPlaced = activeOrder !== null && activeOrder.placedAt > 0
+  const totalCents = activeOrder?.total || 0
+
+  // Compute canRemove based on edit window and status
+  const canRemove = (() => {
+    if (!activeOrder) return true
+    if (activeOrder.placedAt === 0) return true // Not placed yet
+    if (activeOrder.status !== 'pending') return false
+    // Check if within 5-minute edit window
+    const EDIT_WINDOW = 5 * 60 * 1000
+    return Date.now() - activeOrder.placedAt < EDIT_WINDOW
+  })()
 
   // Set tableId from URL on mount and fetch order from server
   useEffect(() => {
@@ -82,11 +97,19 @@ export default function OrderPanel() {
     }
   }
 
+  // Handle update order (sync changes to server)
+  const handleUpdateOrder = async () => {
+    if (!hasUnsavedChanges || isSyncing) return
+    const success = await syncOrderChanges()
+    if (!success) {
+      // Could show an error toast here
+      console.error('Failed to update order')
+    }
+  }
+
   const items = activeOrder?.items || []
   const itemCount = items.reduce((sum, item) => sum + item.qty, 0)
   const hasItems = items.length > 0
-  const orderPlaced = isOrderPlaced()
-  const editable = canEditOrder()
 
   // Get status display info
   const getStatusInfo = () => {
@@ -97,7 +120,7 @@ export default function OrderPanel() {
       return {
         badge: 'editable',
         badgeColor: 'bg-amber-100 text-amber-700',
-        icon: '✏️',
+        icon: <Pencil className="w-3 h-3" />,
         label: tOrder('editable'),
       }
     }
@@ -107,35 +130,35 @@ export default function OrderPanel() {
         return {
           badge: 'confirmed',
           badgeColor: 'bg-green-100 text-green-700',
-          icon: '✓',
+          icon: <Check className="w-3 h-3" />,
           label: tOrder('confirmed'),
         }
       case 'preparing':
         return {
           badge: 'preparing',
           badgeColor: 'bg-blue-100 text-blue-700',
-          icon: '👨‍🍳',
+          icon: <ChefHat className="w-3 h-3" />,
           label: tOrder('preparing'),
         }
       case 'completed':
         return {
           badge: 'completed',
           badgeColor: 'bg-purple-100 text-purple-700',
-          icon: '✓',
+          icon: <CheckCircle className="w-3 h-3" />,
           label: tOrder('completed'),
         }
       case 'paid':
         return {
           badge: 'paid',
           badgeColor: 'bg-gray-100 text-gray-700',
-          icon: '💳',
+          icon: <CreditCard className="w-3 h-3" />,
           label: tOrder('paid'),
         }
       default:
         return {
           badge: 'pending',
           badgeColor: 'bg-yellow-100 text-yellow-700',
-          icon: '⏳',
+          icon: <Clock className="w-3 h-3" />,
           label: tOrder('pending'),
         }
     }
@@ -168,28 +191,27 @@ export default function OrderPanel() {
     <div className="bg-white rounded-xl shadow-sm flex flex-col h-full max-h-[calc(100vh-120px)]">
       {/* Header with status */}
       <div className="p-4 border-b border-gray-100">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold text-gray-900">
-            {orderPlaced ? tOrder('yourOrder') : tBasket('title')}
-            <span className="ml-2 text-sm font-normal text-gray-500">
-              ({tBasket('items', { count: itemCount })})
-            </span>
-          </h3>
+        <h3 className="text-lg font-semibold text-gray-900">
+          {orderPlaced ? tOrder('yourOrder') : tBasket('title')}
+          <span className="ml-2 text-sm font-normal text-gray-500">
+            ({tBasket('items', { count: itemCount })})
+          </span>
+        </h3>
 
-          {/* Status badge and timer */}
-          {statusInfo && (
-            <div className="flex items-center gap-2">
-              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${statusInfo.badgeColor}`}>
-                <span>{statusInfo.icon}</span> {statusInfo.label}
+        {/* Status badge and timer - separate line */}
+        {statusInfo && (
+          <div className="flex items-center gap-2 mt-2">
+            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${statusInfo.badgeColor}`}>
+              <span>{statusInfo.icon}</span> {statusInfo.label}
+            </span>
+            {isEditable && (
+              <span className="font-mono text-xs text-primary-600 bg-primary-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {formatTimeRemaining(minutes, seconds)}
               </span>
-              {isEditable && (
-                <span className="font-mono text-xs text-primary-600 bg-primary-50 px-2 py-0.5 rounded-full">
-                  {formatTimeRemaining(minutes, seconds)}
-                </span>
-              )}
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         {/* Edit window notification */}
         {orderPlaced && isEditable && (
@@ -220,7 +242,7 @@ export default function OrderPanel() {
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-start gap-2">
                   <h4 className="font-medium text-gray-900 text-sm line-clamp-1">{it.name}</h4>
-                  {editable && (
+                  {canRemove && (
                     <button
                       onClick={() => remove(it.id)}
                       className="text-gray-400 hover:text-red-500 transition-colors p-1"
@@ -234,9 +256,9 @@ export default function OrderPanel() {
                 </div>
 
                 <div className="flex justify-between items-center mt-2">
-                  {/* Quantity Controls or Display */}
-                  {editable ? (
-                    <div className="flex items-center border border-gray-200 rounded-full">
+                  {/* Quantity Controls - always show + button, - button only when canRemove */}
+                  <div className="flex items-center border border-gray-200 rounded-full">
+                    {canRemove ? (
                       <button
                         onClick={() => updateQty(it.id, it.qty - 1)}
                         className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-l-full transition-colors text-gray-600"
@@ -244,18 +266,18 @@ export default function OrderPanel() {
                       >
                         −
                       </button>
-                      <span className="w-8 text-center text-sm font-medium">{it.qty}</span>
-                      <button
-                        onClick={() => updateQty(it.id, it.qty + 1)}
-                        className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-r-full transition-colors text-gray-600"
-                        aria-label="Increase quantity"
-                      >
-                        +
-                      </button>
-                    </div>
-                  ) : (
-                    <span className="text-sm text-gray-500">×{it.qty}</span>
-                  )}
+                    ) : (
+                      <span className="w-8 h-8 flex items-center justify-center text-gray-300 rounded-l-full">−</span>
+                    )}
+                    <span className="w-8 text-center text-sm font-medium">{it.qty}</span>
+                    <button
+                      onClick={() => updateQty(it.id, it.qty + 1)}
+                      className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-r-full transition-colors text-gray-600"
+                      aria-label="Increase quantity"
+                    >
+                      +
+                    </button>
+                  </div>
 
                   {/* Price */}
                   <span className="font-semibold text-gray-900 text-sm">
@@ -296,8 +318,19 @@ export default function OrderPanel() {
           </>
         )}
 
+        {/* Update Order Button - shown when there are unsaved changes to a placed order */}
+        {orderPlaced && hasUnsavedChanges && (
+          <button
+            onClick={handleUpdateOrder}
+            disabled={isSyncing}
+            className="w-full py-3 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white rounded-full font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSyncing ? '...' : tOrder('updateOrder')}
+          </button>
+        )}
+
         {/* Status message for confirmed orders */}
-        {orderPlaced && !editable && activeOrder?.status === 'confirmed' && (
+        {orderPlaced && !canRemove && activeOrder?.status === 'confirmed' && (
           <div className="text-center py-2 text-sm text-gray-500">
             {tOrder('confirmedMessage')}
           </div>

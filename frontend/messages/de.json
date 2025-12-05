@@ -39,13 +39,14 @@
     "preparing": "Wird zubereitet",
     "completed": "Fertig",
     "paid": "Bezahlt",
-    "editWindowHint": "Sie können Ihre Bestellung noch bearbeiten. Änderungen werden gesperrt, wenn der Timer abläuft.",
+    "editWindowHint": "Ihre Bestellung wird automatisch bestätigt, wenn der Timer endet. Sie können jetzt Artikel entfernen, aber später immer noch weitere Gerichte hinzufügen.",
     "confirmedMessage": "Ihre Bestellung wurde bestätigt und wird zubereitet.",
     "noModify": "Bestellung gesperrt - Artikel können nicht geändert werden",
     "history": "Bestellverlauf",
     "orderPlaced": "Bestellung erfolgreich aufgegeben!",
     "itemsAdded": "Artikel zur Bestellung hinzugefügt!",
-    "autoConfirmed": "Bestellung automatisch bestätigt"
+    "autoConfirmed": "Bestellung automatisch bestätigt",
+    "updateOrder": "Bestellung aktualisieren"
   },
   "mode": {
     "local": "Lokal",

@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Patch, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Put, Delete, Body, Param, Query, UseGuards, Inject } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -13,9 +13,12 @@ interface SafeUser {
   role: string;
 }
 
+
 @Controller('order')
 export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(
+    @Inject(OrderService) private readonly orderService: OrderService
+  ) { }
 
   // Public endpoints (for customer ordering)
   @Public()
@@ -95,6 +98,12 @@ export class OrderController {
   @Post(':id/check-expire')
   async checkAndConfirmExpired(@Param('id') id: string) {
     return this.orderService.confirmOrderIfExpired(id);
+  }
+
+  @Public()
+  @Post(':id/confirm')
+  async confirmOrder(@Param('id') id: string) {
+    return this.orderService.confirmOrder(id);
   }
 
   // Dashboard: Get all orders (authenticated staff only)

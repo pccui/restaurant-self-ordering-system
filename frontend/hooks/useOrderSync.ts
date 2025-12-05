@@ -3,7 +3,7 @@ import { useEffect, useCallback, useRef } from 'react'
 import { useOrderStore, type OrderStatus } from '@/lib/store/orderStore'
 import { useRouteMode } from '@/lib/hooks/useRouteMode'
 
-const POLL_INTERVAL = 30000 // 30 seconds
+const POLL_INTERVAL = 180000 // 3 minutes
 
 interface ServerOrder {
   id: string
@@ -29,28 +29,42 @@ export function useOrderSync() {
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
+  // Use refs for values needed inside the callback to avoid recreation
+  const orderIdRef = useRef(activeOrder?.id)
+  const orderStatusRef = useRef(activeOrder?.status)
+
+  // Update refs when values change
+  orderIdRef.current = activeOrder?.id
+  orderStatusRef.current = activeOrder?.status
+
+  // Stable primitive values for effect dependencies only
+  const orderId = activeOrder?.id
+  const orderPlacedAt = activeOrder?.placedAt ?? 0
+
+  // Stable callback - uses refs instead of state dependencies
   const fetchOrderStatus = useCallback(async () => {
-    if (!activeOrder || activeOrder.placedAt === 0) return
+    const currentOrderId = orderIdRef.current
+    if (!currentOrderId) return
 
     try {
-      const response = await fetch(`/api/order/${activeOrder.id}`)
+      const response = await fetch(`/api/order/${currentOrderId}`)
       if (!response.ok) {
         if (response.status === 404) {
-          // Order not found on server, might need to re-sync
-          console.warn('Order not found on server')
+          // Order not found on server - this is expected if sync hasn't completed yet
           return
         }
         throw new Error('Failed to fetch order status')
       }
 
       const serverOrder: ServerOrder = await response.json()
+      const currentStatus = orderStatusRef.current
 
-      // Update local state with server status
-      if (serverOrder.status !== activeOrder.status) {
+      // Update local state with server status (only if different)
+      if (serverOrder.status !== currentStatus) {
         updateOrderFromServer({ status: serverOrder.status })
 
         // Handle special status transitions
-        if (serverOrder.status === 'confirmed' && activeOrder.status === 'pending') {
+        if (serverOrder.status === 'confirmed' && currentStatus === 'pending') {
           confirmOrder()
         }
 
@@ -62,11 +76,11 @@ export function useOrderSync() {
     } catch (error) {
       console.error('Error fetching order status:', error)
     }
-  }, [activeOrder, updateOrderFromServer, confirmOrder, resetOrder])
+  }, [updateOrderFromServer, confirmOrder, resetOrder]) // Only stable store functions
 
   useEffect(() => {
     // Only poll in server mode with a placed order
-    if (mode !== 'server' || !activeOrder || activeOrder.placedAt === 0) {
+    if (mode !== 'server' || !orderId || orderPlacedAt === 0) {
       if (intervalRef.current) {
         clearInterval(intervalRef.current)
         intervalRef.current = null
@@ -86,7 +100,7 @@ export function useOrderSync() {
         intervalRef.current = null
       }
     }
-  }, [mode, activeOrder?.id, activeOrder?.placedAt, fetchOrderStatus])
+  }, [mode, orderId, orderPlacedAt, fetchOrderStatus])
 
   return { refetch: fetchOrderStatus }
 }

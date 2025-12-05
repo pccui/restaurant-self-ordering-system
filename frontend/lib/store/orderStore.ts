@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
+import { updateOrderItemsOnServer } from '@/lib/sync/localSync';
 
 export interface OrderItem {
   id: string;
@@ -28,6 +29,10 @@ interface OrderState {
   tableId: string | null;
   // Single active order
   activeOrder: PlacedOrder | null;
+  // Track if there are unsaved changes
+  hasUnsavedChanges: boolean;
+  // Track if sync is in progress
+  isSyncing: boolean;
 
   // Table actions
   setTableId: (tableId: string) => void;
@@ -42,14 +47,16 @@ interface OrderState {
 
   // Order actions
   placeOrder: () => PlacedOrder | null;
-  confirmOrder: () => void;
+  confirmOrder: () => Promise<void>;
   updateOrderFromServer: (order: Partial<PlacedOrder>) => void;
   resetOrder: () => void;
+  syncOrderChanges: () => Promise<boolean>;
 
   // Helpers
   isWithinEditWindow: () => boolean;
   getEditTimeRemaining: () => number;
-  canEditOrder: () => boolean;
+  canRemoveItems: () => boolean; // Can only remove within 5min window + pending status
+  canAddItems: () => boolean;    // Can always add items
   isOrderPlaced: () => boolean;
 }
 
@@ -86,14 +93,22 @@ export const useOrderStore = create<OrderState>()(
   subscribeWithSelector((set, get) => ({
     tableId: null,
     activeOrder: null,
+    hasUnsavedChanges: false,
+    isSyncing: false,
 
     setTableId: (tableId) => {
       // Load order for this specific table from localStorage first
       const currentOrder = loadOrderFromStorage(tableId);
-      set({ tableId, activeOrder: currentOrder });
+      set({ tableId, activeOrder: currentOrder, hasUnsavedChanges: false });
     },
 
     fetchOrderFromServer: async (tableId) => {
+      // Don't fetch if there are unsaved changes
+      if (get().hasUnsavedChanges) {
+        console.log('Skipping server fetch - unsaved changes exist');
+        return;
+      }
+
       try {
         const response = await fetch(`/api/order/table/${tableId}`);
         if (!response.ok) {
@@ -120,7 +135,8 @@ export const useOrderStore = create<OrderState>()(
           saveOrderToStorage(tableId, localOrder);
         }
       } catch (error) {
-        console.warn('Failed to fetch order from server:', error);
+        // Silent fail - this is expected when server is unreachable
+        // Local state from localStorage is used as fallback
       }
     },
 
@@ -143,11 +159,7 @@ export const useOrderStore = create<OrderState>()(
         return;
       }
 
-      // Can only add if within edit window or not yet placed
-      if (state.activeOrder.placedAt > 0 && !get().isWithinEditWindow()) {
-        return;
-      }
-
+      // Adding items is ALWAYS allowed (no time restriction)
       const existing = state.activeOrder.items.find(i => i.id === item.id);
       let newItems: OrderItem[];
 
@@ -168,20 +180,28 @@ export const useOrderStore = create<OrderState>()(
 
       set({ activeOrder: newOrder });
       saveOrderToStorage(state.tableId, newOrder);
+
+      // Mark as having unsaved changes if order was already placed
+      if (state.activeOrder.placedAt > 0) {
+        set({ hasUnsavedChanges: true });
+      }
     },
 
     removeItem: (id) => {
       const state = get();
       if (!state.activeOrder) return;
-      if (state.activeOrder.placedAt > 0 && !get().isWithinEditWindow()) {
+      // Can only remove within 5-min window AND status is pending
+      if (state.activeOrder.placedAt > 0 && !get().canRemoveItems()) {
         return;
       }
 
       const newItems = state.activeOrder.items.filter(i => i.id !== id);
+      const wasPlaced = state.activeOrder.placedAt > 0;
 
       if (newItems.length === 0) {
         set({ activeOrder: null });
         saveOrderToStorage(state.tableId, null);
+        // Note: We don't sync empty orders - the order remains on server
         return;
       }
 
@@ -194,16 +214,30 @@ export const useOrderStore = create<OrderState>()(
 
       set({ activeOrder: newOrder });
       saveOrderToStorage(state.tableId, newOrder);
+
+      // Mark as having unsaved changes if order was already placed
+      if (wasPlaced) {
+        set({ hasUnsavedChanges: true });
+      }
     },
 
     updateQty: (id, qty) => {
       const state = get();
       if (!state.activeOrder) return;
-      if (state.activeOrder.placedAt > 0 && !get().isWithinEditWindow()) {
+
+      const wasPlaced = state.activeOrder.placedAt > 0;
+      const currentItem = state.activeOrder.items.find(i => i.id === id);
+      if (!currentItem) return;
+
+      const isDecreasing = qty < currentItem.qty;
+
+      // Decreasing quantity or removing follows the same rules as removeItem
+      if (isDecreasing && wasPlaced && !get().canRemoveItems()) {
         return;
       }
 
       if (qty <= 0) {
+        // This is a removal - already checked canRemoveItems above
         const newItems = state.activeOrder.items.filter(i => i.id !== id);
         if (newItems.length === 0) {
           set({ activeOrder: null });
@@ -218,6 +252,9 @@ export const useOrderStore = create<OrderState>()(
         };
         set({ activeOrder: newOrder });
         saveOrderToStorage(state.tableId, newOrder);
+        if (wasPlaced) {
+          set({ hasUnsavedChanges: true });
+        }
         return;
       }
 
@@ -233,12 +270,18 @@ export const useOrderStore = create<OrderState>()(
 
       set({ activeOrder: newOrder });
       saveOrderToStorage(state.tableId, newOrder);
+
+      // Mark as having unsaved changes if order was already placed
+      if (wasPlaced) {
+        set({ hasUnsavedChanges: true });
+      }
     },
 
     clearCart: () => {
       const state = get();
       if (!state.activeOrder) return;
-      if (state.activeOrder.placedAt > 0 && !get().isWithinEditWindow()) {
+      // Clearing cart is like removing all items - only within edit window
+      if (state.activeOrder.placedAt > 0 && !get().canRemoveItems()) {
         return;
       }
       set({ activeOrder: null });
@@ -266,7 +309,7 @@ export const useOrderStore = create<OrderState>()(
       return placedOrder;
     },
 
-    confirmOrder: () => {
+    confirmOrder: async () => {
       const state = get();
       if (!state.activeOrder) return;
       if (state.activeOrder.status !== 'pending') return;
@@ -276,8 +319,18 @@ export const useOrderStore = create<OrderState>()(
         status: 'confirmed',
       };
 
+      // Update local state immediately
       set({ activeOrder: confirmedOrder });
       saveOrderToStorage(state.tableId, confirmedOrder);
+
+      // Sync to server
+      try {
+        await fetch(`/api/order/${state.activeOrder.id}/confirm`, {
+          method: 'POST',
+        });
+      } catch (error) {
+        console.error('Failed to confirm order on server:', error);
+      }
     },
 
     updateOrderFromServer: (order) => {
@@ -295,8 +348,33 @@ export const useOrderStore = create<OrderState>()(
 
     resetOrder: () => {
       const state = get();
-      set({ activeOrder: null });
+      set({ activeOrder: null, hasUnsavedChanges: false });
       saveOrderToStorage(state.tableId, null);
+    },
+
+    syncOrderChanges: async () => {
+      const state = get();
+      if (!state.activeOrder || !state.hasUnsavedChanges) return true;
+      if (state.activeOrder.placedAt === 0) return true; // Not yet placed
+
+      set({ isSyncing: true });
+      try {
+        const items = state.activeOrder.items.map(i => ({ menuItemId: i.id, qty: i.qty }));
+        const success = await updateOrderItemsOnServer(
+          state.activeOrder.id,
+          items,
+          state.activeOrder.total
+        );
+        if (success) {
+          set({ hasUnsavedChanges: false });
+        }
+        return success;
+      } catch (error) {
+        console.error('Failed to sync order changes:', error);
+        return false;
+      } finally {
+        set({ isSyncing: false });
+      }
     },
 
     isWithinEditWindow: () => {
@@ -313,12 +391,18 @@ export const useOrderStore = create<OrderState>()(
       return Math.max(0, ORDER_EDIT_WINDOW - elapsed);
     },
 
-    canEditOrder: () => {
+    // Can remove items only within 5-min window AND status is pending
+    canRemoveItems: () => {
       const state = get();
       if (!state.activeOrder) return true;
-      if (state.activeOrder.placedAt === 0) return true;
+      if (state.activeOrder.placedAt === 0) return true; // Not placed yet
       if (state.activeOrder.status !== 'pending') return false;
       return get().isWithinEditWindow();
+    },
+
+    // Can always add items to an order
+    canAddItems: () => {
+      return true;
     },
 
     isOrderPlaced: () => {

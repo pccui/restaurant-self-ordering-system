@@ -1,6 +1,9 @@
 'use client'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useOrderStore } from '@/lib/store/orderStore'
+
+// 5 minutes in milliseconds
+const ORDER_EDIT_WINDOW = 5 * 60 * 1000
 
 interface OrderTimerState {
   timeRemaining: number // milliseconds
@@ -17,28 +20,39 @@ interface OrderTimerState {
 export function useOrderTimer(): OrderTimerState {
   const activeOrder = useOrderStore((s) => s.activeOrder)
   const confirmOrder = useOrderStore((s) => s.confirmOrder)
-  const getEditTimeRemaining = useOrderStore((s) => s.getEditTimeRemaining)
-  const isWithinEditWindow = useOrderStore((s) => s.isWithinEditWindow)
-  const isOrderPlaced = useOrderStore((s) => s.isOrderPlaced)
 
-  const [timeRemaining, setTimeRemaining] = useState(() =>
-    activeOrder?.placedAt ? getEditTimeRemaining() : 0
-  )
+  const [timeRemaining, setTimeRemaining] = useState(0)
+
+  // Calculate if order is placed and editable from activeOrder directly
+  const orderPlaced = activeOrder !== null && activeOrder.placedAt > 0
+  const placedAt = activeOrder?.placedAt ?? 0
+
+  // Calculate isEditable based on current time and placedAt
+  const isEditable = useMemo(() => {
+    if (!orderPlaced) return false
+    return Date.now() - placedAt < ORDER_EDIT_WINDOW
+  }, [orderPlaced, placedAt, timeRemaining]) // timeRemaining triggers recalc
 
   // Calculate minutes and seconds
   const totalSeconds = Math.floor(timeRemaining / 1000)
   const minutes = Math.floor(totalSeconds / 60)
   const seconds = totalSeconds % 60
 
-  const isEditable = isOrderPlaced() && isWithinEditWindow()
-  const isExpired = isOrderPlaced() && timeRemaining === 0
+  const isExpired = orderPlaced && timeRemaining === 0
+
+  // Calculate time remaining
+  const getTimeRemaining = useCallback(() => {
+    if (!placedAt || placedAt === 0) return ORDER_EDIT_WINDOW
+    const elapsed = Date.now() - placedAt
+    return Math.max(0, ORDER_EDIT_WINDOW - elapsed)
+  }, [placedAt])
 
   // Auto-confirm when timer expires
   const handleExpire = useCallback(() => {
-    if (activeOrder && activeOrder.placedAt > 0 && getEditTimeRemaining() <= 0) {
+    if (activeOrder && activeOrder.placedAt > 0 && activeOrder.status === 'pending') {
       confirmOrder()
     }
-  }, [activeOrder, confirmOrder, getEditTimeRemaining])
+  }, [activeOrder, confirmOrder])
 
   useEffect(() => {
     if (!activeOrder || activeOrder.placedAt === 0) {
@@ -46,9 +60,17 @@ export function useOrderTimer(): OrderTimerState {
       return
     }
 
+    // Initial check - confirm immediately if already expired
+    const initialRemaining = getTimeRemaining()
+    setTimeRemaining(initialRemaining)
+    if (initialRemaining <= 0) {
+      handleExpire()
+      return // No need to start interval
+    }
+
     // Update timer every second
     const interval = setInterval(() => {
-      const remaining = getEditTimeRemaining()
+      const remaining = getTimeRemaining()
       setTimeRemaining(remaining)
 
       // Auto-confirm when expired
@@ -58,11 +80,8 @@ export function useOrderTimer(): OrderTimerState {
       }
     }, 1000)
 
-    // Initial check
-    setTimeRemaining(getEditTimeRemaining())
-
     return () => clearInterval(interval)
-  }, [activeOrder, getEditTimeRemaining, handleExpire])
+  }, [activeOrder, getTimeRemaining, handleExpire])
 
   return {
     timeRemaining,

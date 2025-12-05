@@ -3,6 +3,8 @@
 
 These instructions are for AI assistants working in this project.
 
+Act as a Senior Full-Stack Engineer specializing in NestJs, Next.js 15+, and TypeScript, read docs openspec/project.md, openspec/specs/architecture.md and  openspec/specs/architecture.md to understand the project before any action.
+
 Always open `@/openspec/AGENTS.md` when the request:
 - Mentions planning or proposals (words like proposal, spec, change, plan)
 - Introduces new capabilities, breaking changes, architecture shifts, or big performance/security work

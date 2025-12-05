@@ -11,6 +11,8 @@ import ModeBanner from '@/components/ModeBanner'
 import DemoBanner from '@/components/DemoBanner'
 import type { ReactNode } from 'react'
 
+import { Toaster } from 'sonner'
+
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 const locales = ['en', 'zh', 'de'];
@@ -51,6 +53,9 @@ export default async function LocaleLayout({ children, params }: { children: Rea
 
             {/* Floating Cart Button - Hidden on dashboard/login */}
             <CartFloatingButton />
+
+            {/* Global Toast Notifications */}
+            <Toaster position="top-right" expand={true} richColors closeButton />
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>

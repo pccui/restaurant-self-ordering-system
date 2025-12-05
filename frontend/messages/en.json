@@ -39,13 +39,14 @@
     "preparing": "Preparing",
     "completed": "Ready",
     "paid": "Paid",
-    "editWindowHint": "You can still edit your order. Changes will be locked when timer expires.",
+    "editWindowHint": "Your order will be auto-confirmed when timer ends. You can remove items now, but can always add more dishes later.",
     "confirmedMessage": "Your order has been confirmed and is being prepared.",
     "noModify": "Order locked - items cannot be modified",
     "history": "Order History",
     "orderPlaced": "Order placed successfully!",
     "itemsAdded": "Items added to order!",
-    "autoConfirmed": "Order auto-confirmed"
+    "autoConfirmed": "Order auto-confirmed",
+    "updateOrder": "Update Order"
   },
   "mode": {
     "local": "Local",

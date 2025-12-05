@@ -39,13 +39,14 @@
     "preparing": "准备中",
     "completed": "已完成",
     "paid": "已支付",
-    "editWindowHint": "您仍可以编辑订单。计时器结束后将锁定更改。",
+    "editWindowHint": "倒计时结束后订单将自动确认。现在可以删除菜品，之后仍可随时添加新菜品。",
     "confirmedMessage": "您的订单已确认，正在准备中。",
     "noModify": "订单已锁定 - 无法修改",
     "history": "历史订单",
     "orderPlaced": "下单成功！",
     "itemsAdded": "已添加到订单！",
-    "autoConfirmed": "订单已自动确认"
+    "autoConfirmed": "订单已自动确认",
+    "updateOrder": "更新订单"
   },
   "mode": {
     "local": "本地",

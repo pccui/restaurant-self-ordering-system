@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useAuthStore } from '@/lib/store/authStore';
 import { logout } from '@/lib/api/auth';
 import { useRouter } from 'next/navigation';
+import { ClipboardList, Users, ScrollText, UtensilsCrossed, LogOut } from 'lucide-react';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -23,20 +24,20 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
     {
       href: `/${locale}/dashboard`,
       label: t('orders'),
-      icon: '📋',
+      icon: <ClipboardList className="w-5 h-5" />,
       exact: true,
     },
     ...(isAdmin() ? [
       {
         href: `/${locale}/dashboard/users`,
         label: t('users'),
-        icon: '👥',
+        icon: <Users className="w-5 h-5" />,
         exact: false,
       },
       {
         href: `/${locale}/dashboard/audit`,
         label: t('auditLogs'),
-        icon: '📜',
+        icon: <ScrollText className="w-5 h-5" />,
         exact: false,
       },
     ] : []),
@@ -98,9 +99,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             onClick={handleLogout}
             className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
+            <LogOut className="w-4 h-4" />
             <span className="font-medium">{t('logout')}</span>
           </button>
         </div>
@@ -120,7 +119,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                 }
               `}
             >
-              <span className="text-xl">{item.icon}</span>
+              <span className="flex-shrink-0">{item.icon}</span>
               <span className="font-medium">{item.label}</span>
             </Link>
           ))}
@@ -131,7 +130,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             onClick={onClose}
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors sm:hidden text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
-            <span className="text-xl">🍽️</span>
+            <UtensilsCrossed className="w-5 h-5" />
             <span className="font-medium">{t('viewMenu')}</span>
           </Link>
         </nav>

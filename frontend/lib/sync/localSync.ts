@@ -107,6 +107,33 @@ export async function syncOrderToServer(order: Order): Promise<boolean> {
   }
 }
 
+/**
+ * Update order items on the server (for adding items to existing orders)
+ * Uses PATCH /api/order/:id/items endpoint
+ */
+export async function updateOrderItemsOnServer(
+  orderId: string,
+  items: { menuItemId: string; qty: number }[],
+  total: number
+): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/order/${orderId}/items`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items, total })
+    });
+
+    if (!res.ok) {
+      throw new Error(`Order update failed with status ${res.status}`);
+    }
+
+    return true;
+  } catch (err) {
+    console.warn('Failed to update order items on server:', err);
+    return false;
+  }
+}
+
 // Legacy aliases for backward compatibility
 export const queueOrder = queueOrderForSync;
 export const syncPendingOrders = syncPendingOrdersToServer;

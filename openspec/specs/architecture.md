@@ -96,22 +96,101 @@ backend/src/modules/
 ```
 
 ### Menu Flow
-1. Client requests `/api/online/menu`.
+1. Client requests `/api/menu`.
 2. MenuService returns Prisma-mapped data.
 3. Data validated with shared schema before sending.
 
+### Order Flow
+1. Client creates order locally with `placedAt: 0` (cart state).
+2. Client places order → `POST /api/order` with `placedAt: Date.now()`.
+3. Order enters 5-minute edit window (status: `pending`).
+4. Within edit window: client can remove items, always can add items.
+5. After 5 minutes: order auto-confirms → `status: confirmed`.
+6. Staff progresses: `confirmed` → `preparing` → `completed` → `paid`.
+
+### Order Edit Window Logic
+- **Duration**: 5 minutes from `placedAt` timestamp.
+- **Remove items**: Only allowed within edit window AND status is `pending`.
+- **Add items**: Always allowed regardless of edit window or status.
+- **Auto-confirm**: Frontend timer calls `POST /api/order/:id/confirm` when window expires.
+- **Audit log**: Auto-confirm logged with `user: system, reason: auto-confirmed`.
+
 ### Offline Sync
-- `POST /api/online/orders/sync` accepts queued offline orders.
+- `POST /api/order` accepts orders (replaces old `/api/online/orders/sync`).
+- Background sync via `syncPendingOrdersToServer()`.
 - Backend returns authoritative order IDs.
 
+### 4.4 Order Status Lifecycle
+```
+┌─────────────┐     place order      ┌─────────────┐
+│   (cart)    │ ──────────────────▶  │   pending   │
+│ placedAt: 0 │                      │             │
+└─────────────┘                      └──────┬──────┘
+                                            │
+                           5-min timer OR   │
+                           staff action     ▼
+                                     ┌─────────────┐
+                                     │  confirmed  │
+                                     └──────┬──────┘
+                                            │
+                              kitchen starts │
+                                            ▼
+                                     ┌─────────────┐
+                                     │  preparing  │
+                                     └──────┬──────┘
+                                            │
+                              food ready    │
+                                            ▼
+                                     ┌─────────────┐
+                                     │  completed  │
+                                     └──────┬──────┘
+                                            │
+                              payment       │
+                                            ▼
+                                     ┌─────────────┐
+                                     │    paid     │
+                                     └─────────────┘
+```
 
-### 4.4 Security & CORS
+**Status Actions by Role:**
+| Status | Kitchen | Waiter | Admin |
+|--------|---------|--------|-------|
+| pending → confirmed | ✅ | ❌ | ✅ |
+| confirmed → preparing | ✅ | ❌ | ✅ |
+| preparing → completed | ✅ | ❌ | ✅ |
+| completed → paid | ❌ | ✅ | ✅ |
+| Delete order | ❌ | ❌ | ✅ (not paid) |
+
+### 4.5 Security & CORS
 - **CORS Configuration**:
   - Implemented via NestJS `app.enableCors()`.
   - Development: Allows all origins.
   - Production: Restricts to `FRONTEND_URL`.
   - Allowed methods: GET, POST, PUT, DELETE, PATCH, OPTIONS.
   - Credentials allowed.
+
+  - Allowed methods: GET, POST, PUT, DELETE, PATCH, OPTIONS.
+  - Credentials allowed.
+
+### 4.6 Common Backend Patterns & Troubleshooting
+
+#### Circular Dependencies (Injection Issues)
+**Problem**: In complex modules (e.g., Order depends on Audit, Audit depends on User, User depends on Order), NestJS may fail to resolve dependencies automatically.
+**Symptom**: `TypeError: Cannot read properties of undefined` when accessing an injected service (e.g., `this.orderService`).
+**Solution**: Use explicit `@Inject()` token resolution in the constructor.
+
+```typescript
+// ❌ Implicit injection (fails in circular deps)
+constructor(private readonly orderService: OrderService) {}
+
+// ✅ Explicit injection (works)
+import { Inject } from '@nestjs/common';
+
+constructor(
+  @Inject(OrderService) private readonly orderService: OrderService
+) {}
+```
+**When to use**: Only when standard injection fails due to cyclic module imports.
 
 ---
 
@@ -125,22 +204,31 @@ app/
   │     ├── menu/page.tsx              (browse-only, no cart)
   │     ├── [tableId]/menu/page.tsx    (table ordering, server mode)
   │     ├── local/[tableId]/menu/...   (table ordering, local mode)
-  │     ├── dashboard/...
+  │     ├── dashboard/...              (staff order management)
+  │     ├── login/page.tsx             (staff authentication)
   │     └── ...
   ├── api/
-  │     └── online/
-  │           ├── menu/route.ts (GET /api/online/menu)
-  │           ├── order/route.ts (POST /api/online/order)
-  │           └── order/table/[tableId]/route.ts (GET order by table)
+  │     ├── menu/route.ts              (GET /api/menu)
+  │     ├── order/route.ts             (POST /api/order, GET /api/order)
+  │     ├── order/[id]/route.ts        (GET /api/order/:id)
+  │     ├── order/[id]/status/route.ts (PATCH /api/order/:id/status)
+  │     ├── order/[id]/items/route.ts  (PATCH /api/order/:id/items)
+  │     ├── order/[id]/confirm/route.ts (POST /api/order/:id/confirm)
+  │     └── order/table/[tableId]/route.ts (GET order by table)
   ├── layout.tsx
   └── page.tsx  (redirect → default locale)
 
 lib/
   ├── api/          (client-side API utilities)
   ├── data/         (static data, menuData.ts)
-  ├── hooks/        (useRouteMode, useOrderSync, etc.)
-  ├── store/        (Zustand stores)
-  └── sync/         (offline sync logic)
+  ├── hooks/        (useRouteMode, useOrderSync, useOrderTimer, etc.)
+  ├── store/        (Zustand stores: orderStore, menuStore, authStore)
+  └── sync/         (offline sync logic: localSync.ts)
+
+hooks/
+  ├── useOrderTimer.ts   (5-min edit window countdown, auto-confirm)
+  ├── useOrderSync.ts    (poll server for status updates)
+  └── useRequireAuth.ts  (dashboard authentication guard)
 ```
 
 ### Route Modes
@@ -150,6 +238,7 @@ lib/
 | `/en/T01/menu` | Table ordering (server mode) | ✅ Yes |
 | `/en/local/T01/menu` | Table ordering (local mode) | ✅ Yes |
 | `/en/dashboard` | Staff dashboard | N/A |
+| `/en/login` | Staff login | N/A |
 
 ### useRouteMode Hook
 Determines data mode from URL path (single source of truth):
@@ -158,9 +247,42 @@ Determines data mode from URL path (single source of truth):
 - `canOrder`: true when user has a valid table assignment
 - `showModeToggle`: only on table-specific routes
 
+### Order Timer Hook (useOrderTimer)
+Tracks 5-minute edit window for placed orders:
+- `timeRemaining`: milliseconds until auto-confirm
+- `minutes`, `seconds`: formatted countdown display
+- `isEditable`: true when within edit window AND order placed
+- `isExpired`: true when timer has elapsed
+- Auto-calls `confirmOrder()` when timer expires
+
+### Order Sync Hook (useOrderSync)
+Polls server for order status updates (3-minute interval):
+- Only active in server mode with placed order
+- Updates local state when server status changes
+- Handles status transitions (confirmed, paid, etc.)
+- Silent 404 handling for orders not yet synced
+
 ### State Management
 - **Zustand** for basket, theme, demo toggle, offline status.
 - Persistent offline basket using **IndexedDB (localforage)**.
+
+#### Zustand Subscription Best Practices
+When subscribing to Zustand store, follow these rules for proper reactivity:
+
+```tsx
+// ✅ DO: Subscribe to state values
+const activeOrder = useOrderStore((s) => s.activeOrder)
+const hasUnsavedChanges = useOrderStore((s) => s.hasUnsavedChanges)
+
+// ✅ DO: Compute derived values in component
+const orderPlaced = activeOrder !== null && activeOrder.placedAt > 0
+
+// ❌ DON'T: Subscribe to method references
+const isOrderPlaced = useOrderStore((s) => s.isOrderPlaced) // function ref
+const result = isOrderPlaced() // Won't re-render when state changes!
+```
+
+**Why?** Function references never change, so React won't re-render. Always subscribe to the actual state values that change.
 
 ### UI
 - ShadCN components extended with:
@@ -275,8 +397,14 @@ This prevents mismatch and improves editor productivity.
 
 ### ShadCN Component Variants
 - `Button`
-  - variants: `default`, `outline`, `ghost`, `destructive`
+  - variants: `default`, `outline`, `ghost`, `destructive`, `danger`, `primary`
   - sizes: `sm`, `md`, `lg`, `xl`
+
+### Icons (lucide-react)
+All icons use lucide-react for consistency:
+- **Order Status**: `Clock` (pending), `Pencil` (editable), `Check` (confirmed), `ChefHat` (preparing), `CheckCircle` (completed), `CreditCard` (paid)
+- **Navigation**: `ClipboardList` (orders), `Users` (users), `ScrollText` (audit), `UtensilsCrossed` (menu)
+- **Actions**: `Menu` (hamburger), `LogOut`, `X` (close), `Gamepad2` (demo mode)
 
 ### Dark Mode
 - `darkMode: "class"`

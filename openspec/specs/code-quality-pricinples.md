@@ -116,6 +116,17 @@ Lazy images, route-level loading.
 ### 28. Efficient Selectors
 Zustand selectors to avoid rerenders.
 
+**Critical Pattern**: Subscribe to state values, NOT method references.
+```tsx
+// ✅ Correct - subscribes to reactive state
+const activeOrder = useOrderStore((s) => s.activeOrder)
+const orderPlaced = activeOrder !== null && activeOrder.placedAt > 0
+
+// ❌ Wrong - subscribes to function, won't trigger re-renders
+const isOrderPlaced = useOrderStore((s) => s.isOrderPlaced)
+const result = isOrderPlaced() // Stale after first render!
+```
+
 ### 29. Minimize Bundle Size
 Tree-shaking, component-level imports.
 
@@ -136,5 +147,5 @@ Logging, analytics points.
 
 ## Closing Note
 
-This list represents modern, scalable engineering practices.  
+This list represents modern, scalable engineering practices.
 The main architecture document contains a curated subset tailored for this project.

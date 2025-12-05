@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAuthStore } from '@/lib/store/authStore';
 import { getOrders, updateOrderStatus, deleteOrder, updateOrder, DashboardOrder } from '@/lib/api/orders';
@@ -8,6 +8,7 @@ import { OrderStatus } from '@/lib/store/orderStore';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Dialog from '@/components/ui/Dialog';
+import { toast } from 'sonner';
 
 const STATUS_FILTERS: (OrderStatus | 'all')[] = ['all', 'pending', 'confirmed', 'preparing', 'completed', 'paid'];
 
@@ -49,6 +50,8 @@ export default function OrdersPage() {
 
       const data = await getOrders(params);
       setOrders(data);
+      // Initialize ref on manual fetch / filter change so we don't get massive notifications
+      prevOrdersRef.current = data;
       setError('');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load orders');
@@ -57,13 +60,74 @@ export default function OrdersPage() {
     }
   }, [statusFilter, tableFilter]);
 
+  // Ref to track previous orders for diffing
+  const prevOrdersRef = useRef<DashboardOrder[]>([]);
+
   useEffect(() => {
     fetchOrders();
 
-    // Poll for updates every 30 seconds
-    const interval = setInterval(fetchOrders, 30000);
+    // Poll for updates every 5 seconds (fast polling)
+    const interval = setInterval(async () => {
+      // Create a separate fetch function for silent background updates to avoid flicker
+      // or just re-use fetchOrders if we handle state carefully
+      try {
+        const params: { status?: OrderStatus; tableId?: string } = {};
+        if (statusFilter !== 'all') params.status = statusFilter;
+        if (tableFilter) params.tableId = tableFilter;
+
+        const data = await getOrders(params);
+
+        // Compare new data with previous ref to trigger notifications
+        // We only notify if:
+        // 1. New order appears (ID not in prev)
+        // 2. Status changes (ID in prev, but status different)
+        // 3. Items change (Total diff)
+
+        const prevOrders = prevOrdersRef.current;
+        if (prevOrders.length > 0) { // Don't notify on first load
+          const prevMap = new Map(prevOrders.map(o => [o.id, o]));
+
+          data.forEach(newOrder => {
+            const oldOrder = prevMap.get(newOrder.id);
+
+            if (!oldOrder) {
+              // Case 1: New Order
+              // Only notify if we are showing relevant filters
+              toast.success(`New Order from Table ${newOrder.tableId}`, {
+                description: `${formatCurrency(newOrder.total)} - ${newOrder.items.length} items`,
+                duration: 5000,
+              });
+            } else {
+              // Case 2: Status Change
+              if (oldOrder.status !== newOrder.status) {
+                toast.info(`Table ${newOrder.tableId}: Status updated`, {
+                  description: `${t(`status${oldOrder.status.charAt(0).toUpperCase() + oldOrder.status.slice(1)}`)} ➔ ${t(`status${newOrder.status.charAt(0).toUpperCase() + newOrder.status.slice(1)}`)}`
+                });
+              }
+
+              // Case 3: Content Change (Total changed)
+              if (oldOrder.total !== newOrder.total && oldOrder.status === newOrder.status) {
+                const diff = newOrder.total - oldOrder.total;
+                const msg = diff > 0 ? 'Items added' : 'Items removed';
+                toast.warning(`Table ${newOrder.tableId}: Order updated`, {
+                  description: `${msg} (${formatCurrency(newOrder.total)})`
+                });
+              }
+            }
+          });
+        }
+
+        setOrders(data);
+        prevOrdersRef.current = data;
+        setError('');
+      } catch (err) {
+        // Silent error on polling
+        console.error('Polling error:', err);
+      }
+    }, 5000);
+
     return () => clearInterval(interval);
-  }, [fetchOrders]);
+  }, [fetchOrders, statusFilter, tableFilter, t]);
 
   async function handleStatusChange(orderId: string, newStatus: OrderStatus) {
     try {

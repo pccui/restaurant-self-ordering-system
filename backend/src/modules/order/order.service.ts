@@ -14,7 +14,9 @@ interface SafeUser {
 
 @Injectable()
 export class OrderService {
-  constructor(@Inject(AuditService) private readonly auditService: AuditService) {}
+  constructor(
+    @Inject(AuditService) private readonly auditService: AuditService
+  ) { }
 
   // Maximum orders to keep in database (for demo mode cleanup)
   private readonly MAX_ORDERS = 50;
@@ -132,14 +134,41 @@ export class OrderService {
   async updateOrderItems(id: string, items: any[], total: number, user?: SafeUser) {
     const order = await this.getOrder(id);
 
-    // Check if within edit window
-    if (!this.isWithinEditWindow(order)) {
-      throw new BadRequestException('Order edit window has expired');
+    // Get current item quantities to check what changed
+    const currentItems = order.items as Array<{ menuItemId?: string; id?: string; qty: number }>;
+    const currentQtyMap = new Map<string, number>();
+    for (const item of currentItems) {
+      const itemId = item.menuItemId || item.id;
+      if (itemId) currentQtyMap.set(itemId, item.qty);
     }
 
-    if (order.status !== 'pending') {
-      throw new BadRequestException('Cannot modify order after confirmation');
+    // Check if any items are being removed or decreased
+    const newQtyMap = new Map<string, number>();
+    for (const item of items) {
+      const itemId = item.menuItemId || item.id;
+      if (itemId) newQtyMap.set(itemId, item.qty);
     }
+
+    let hasRemovals = false;
+    for (const [itemId, currentQty] of currentQtyMap) {
+      const newQty = newQtyMap.get(itemId) || 0;
+      if (newQty < currentQty) {
+        hasRemovals = true;
+        break;
+      }
+    }
+
+    // Removals are only allowed within edit window AND pending status
+    if (hasRemovals) {
+      if (!this.isWithinEditWindow(order)) {
+        throw new BadRequestException('Cannot remove items after edit window has expired');
+      }
+      if (order.status !== 'pending') {
+        throw new BadRequestException('Cannot remove items after order confirmation');
+      }
+    }
+
+    // Adding items is always allowed (no restrictions)
 
     const before = { items: order.items, total: order.total };
     const updated = await prisma.order.update({
@@ -304,6 +333,37 @@ export class OrderService {
     }
 
     return order;
+  }
+
+  /**
+   * Confirm an order - called by client when edit window expires
+   */
+  async confirmOrder(id: string) {
+    const order = await this.getOrder(id);
+
+    if (order.status !== 'pending') {
+      return order;
+    }
+
+    // Update status to confirmed
+    const updated = await prisma.order.update({
+      where: { id },
+      data: { status: 'confirmed' },
+    });
+
+    // Audit log: auto-confirm by timer
+    await this.auditService.log({
+      action: 'UPDATE',
+      entityType: 'Order',
+      entityId: id,
+      user: { id: 'system', email: 'timer@system' },
+      changes: {
+        before: { status: 'pending' },
+        after: { status: 'confirmed', reason: 'Auto-confirmed after 5-minute edit window expired' },
+      },
+    });
+
+    return updated;
   }
 
   private isWithinEditWindow(order: any): boolean {

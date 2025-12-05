@@ -1,5 +1,4 @@
 import { OrderStatus } from '../store/orderStore';
-import { API_BASE } from '../config';
 
 export interface DashboardOrder {
   id: string;
@@ -31,7 +30,7 @@ export async function getOrders(params?: GetOrdersParams): Promise<DashboardOrde
   if (params?.status) queryParams.set('status', params.status);
   if (params?.tableId) queryParams.set('tableId', params.tableId);
 
-  const url = `${API_BASE}/api/order${queryParams.toString() ? `?${queryParams}` : ''}`;
+  const url = `/api/order${queryParams.toString() ? `?${queryParams}` : ''}`;
 
   const res = await fetch(url, {
     credentials: 'include',
@@ -48,7 +47,7 @@ export async function getOrders(params?: GetOrdersParams): Promise<DashboardOrde
  * Get a single order by ID
  */
 export async function getOrder(id: string): Promise<DashboardOrder> {
-  const res = await fetch(`${API_BASE}/api/order/${id}`, {
+  const res = await fetch(`/api/order/${id}`, {
     credentials: 'include',
   });
 
@@ -64,7 +63,7 @@ export async function getOrder(id: string): Promise<DashboardOrder> {
  * Only available to KITCHEN and ADMIN roles
  */
 export async function updateOrderStatus(id: string, status: OrderStatus): Promise<DashboardOrder> {
-  const res = await fetch(`${API_BASE}/api/order/${id}/status`, {
+  const res = await fetch(`/api/order/${id}/status`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -94,7 +93,7 @@ export async function markOrderAsPaid(id: string): Promise<DashboardOrder> {
  * Only available to ADMIN role
  */
 export async function deleteOrder(id: string): Promise<DashboardOrder> {
-  const res = await fetch(`${API_BASE}/api/order/${id}`, {
+  const res = await fetch(`/api/order/${id}`, {
     method: 'DELETE',
     credentials: 'include',
   });
@@ -115,7 +114,7 @@ export async function updateOrder(
   id: string,
   data: { items?: DashboardOrder['items']; total?: number; tableId?: string; status?: OrderStatus }
 ): Promise<DashboardOrder> {
-  const res = await fetch(`${API_BASE}/api/order/${id}`, {
+  const res = await fetch(`/api/order/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',

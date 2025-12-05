@@ -119,9 +119,21 @@ Avoids format drift between FE/BE.
 
 ### 5. Unified Online and Offline Architecture
 
-- **Online API**: `/api/online/*`
+- **Online API**: `/api/*` (simplified from `/api/online/*`)
 - **Offline**: IndexedDB/localforage
 - Both use identical TypeScript types & helpers
+
+### 6. Order Edit Window Pattern
+
+The system implements a 5-minute edit window for placed orders:
+
+- **Within window**: Client can remove items from order
+- **After window**: Order auto-confirms, removal disabled
+- **Adding items**: Always allowed regardless of edit window
+- **Implementation**:
+  - Frontend: `useOrderTimer` hook with countdown
+  - Backend: `POST /api/order/:id/confirm` endpoint
+  - Audit: Auto-confirm logged with system user
 
 ## Testing Strategy
 
@@ -193,9 +205,31 @@ The system supports multi-category Chinese cuisine:
 
 ### Ordering Domain
 
-- Each table is identified by a QR code
-- Basket items stored locally (Zustand, offline-safe)
+- Each table is identified by a QR code or URL path (`/en/T01/menu`)
+- Basket items stored locally (Zustand + localStorage per table)
 - Orders can sync from offline → server once connected
+- **Order Lifecycle**: cart → pending → confirmed → preparing → completed → paid
+
+### Order Edit Rules
+
+| Timeframe | Remove Items | Add Items |
+|-----------|--------------|-----------|
+| Before placing | ✅ Yes | ✅ Yes |
+| Within 5-min window | ✅ Yes (if pending) | ✅ Yes |
+| After 5-min window | ❌ No | ✅ Yes |
+| After confirmed | ❌ No | ✅ Yes |
+
+### Staff Dashboard
+
+- **Authentication**: JWT-based with httpOnly cookies
+- **Roles**: ADMIN, KITCHEN, WAITER
+- **Features**:
+  - View all orders with status filter
+  - Progress order status (role-based permissions)
+  - Edit order items (admin only, pending orders)
+  - Delete orders (admin only, not paid)
+  - Audit log viewer (admin only)
+  - User management (admin only)
 
 ### Offline Domain
 

@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { useDemoBanner, DEMO_MODE } from '@/lib/store/useDemoBanner'
+import { Gamepad2, X } from 'lucide-react'
 
 export default function DemoBanner() {
   const t = useTranslations('demo')
@@ -27,7 +28,7 @@ export default function DemoBanner() {
           {/* Info Section */}
           <div className="flex-1 space-y-2">
             <h3 className="text-sm font-semibold text-amber-900 dark:text-amber-100 flex items-center gap-2">
-              <span aria-hidden="true">🎮</span>
+              <Gamepad2 className="w-4 h-4" aria-hidden="true" />
               {t('bannerTitle')}
             </h3>
 
@@ -56,16 +57,7 @@ export default function DemoBanner() {
             className="self-start p-1.5 text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-800 rounded-md transition-colors"
             aria-label={t('dismiss')}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <X className="h-5 w-5" />
           </button>
         </div>
       </div>
