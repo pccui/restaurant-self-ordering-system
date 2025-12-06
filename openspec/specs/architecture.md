@@ -192,6 +192,50 @@ constructor(
 ```
 **When to use**: Only when standard injection fails due to cyclic module imports.
 
+#### Reflector & Guard Injection
+**Problem**: Guards (e.g. `RolesGuard`) used via `@UseGuards(new RolesGuard())` or global pipes may fail to resolve dependencies like `Reflector` due to TypeScript metadata limitations or improper module scoping.
+**Symptom**: `TypeError: Cannot read properties of undefined` inside the guard's constructor or `canActivate`.
+**Solution**:
+1.  **Explicit Injection**: Use `@Inject(Reflector)` in the Guard's constructor.
+    ```typescript
+    constructor(@Inject(Reflector) private reflector: Reflector) {}
+    ```
+2.  **Manual Instantiation** (Last Resort): If DI fails completely (e.g. in mixed context), manually instantiate with dependencies.
+    ```typescript
+    @UseGuards(new RolesGuard(new Reflector()))
+    ```
+
+#### Next.js API Proxy Pattern
+**Problem**: Frontend requests to backend via Next.js API routes (to hide backend URL or handle CORS) usually strip auth headers.
+**Solution**: Explicitly forward the `Authorization` header in the Next.js Route Handler.
+```typescript
+// app/api/[...proxy]/route.ts
+const authHeader = request.headers.get('Authorization');
+if (authHeader) headers['Authorization'] = authHeader;
+```
+
+
+### 4.7 Audit System
+The Audit System tracks lifecycle events for orders and other critical entities, providing accountability and debugging context.
+
+**Data Model Used:**
+- **Entity**: `AuditLog`
+- **Fields**: `action`, `entityId`, `entityType` ("Order"), `userId` (optional), `userEmail` (optional), `changes` (JSON diff), `createdAt`.
+
+**Frontend Integration:**
+- **History Dialog**: Accessible via the context menu on Order Cards.
+- **Diff Logic**: Parses the `changes` JSON field to generate human-readable activity logs:
+  - **Item Changes**: `+ 1x Mapo Tofu` (green) / `- 1x Coke` (red).
+  - **Status Transitions**: `Status: pending ➔ confirmed`.
+- **Operator Labels**:
+  - **Authenticated Staff**: Shows staff email.
+  - **Anonymous Frontend**: labeled as "Client" (localized).
+  - **System/Timer**: labeled as `timer@system` or "System".
+
+**Security & Architecture**:
+- **RBAC**: Access restricted to `ADMIN`, `WAITER`, and `KITCHEN` roles via `RolesGuard`.
+- **API Proxy**: Frontend connects via `GET /api/admin/audit/entity` (Next.js route) which proxies the request to the backend while preserving the `Authorization` header.
+
 ---
 
 ## 5. Frontend Architecture

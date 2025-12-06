@@ -31,6 +31,7 @@ Initially, the system used `HttpOnly` cookies. This was replaced because:
 *   **Frontend Store**: Added `accessToken` to `AuthState`.
 *   **API Client**: `auth.ts` and `orderClient.ts` updated to inject the token.
 *   **Next.js Proxy**: `app/api/order/route.ts` updated to explicitly forward the `Authorization` header.
+*   **Audit Proxy**: `app/api/admin/audit/route.ts` and `entity/route.ts` created/updated to forward `Authorization` header.
 
 ## Verification Checklist
 To verify the authentication flow:
