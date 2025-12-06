@@ -7,6 +7,7 @@ import { AppModule } from './app.module';
 import { env } from './config/env';
 
 import { prisma } from './lib/prisma';
+import { autoSeedIfEmpty } from './init/autoSeed';
 
 const MAX_RETRIES = 5;
 const RETRY_DELAY_MS = 3000;
@@ -43,6 +44,9 @@ async function connectToDatabase(): Promise<void> {
 async function bootstrap() {
   // Check database connection with retry
   await connectToDatabase();
+
+  // Auto-seed if database is empty (for demo deployments)
+  await autoSeedIfEmpty();
 
   const app = await NestFactory.create(AppModule);
 
