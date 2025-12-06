@@ -175,7 +175,59 @@ backend/src/modules/
   - Allowed methods: GET, POST, PUT, DELETE, PATCH, OPTIONS.
   - Credentials allowed (initially required for cookies, maintained for flexibility).
 
-### 4.6 Common Backend Patterns & Troubleshooting
+### 4.6 Database Connection & Startup
+
+#### Connection Check with Retry
+The backend performs a database connectivity check on startup before accepting requests:
+
+```typescript
+// backend/src/main.ts
+const MAX_RETRIES = 5;
+const RETRY_DELAY_MS = 3000;
+
+async function connectToDatabase(): Promise<void> {
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      // Uses actual query (not $connect which is lazy with driver adapters)
+      await prisma.$queryRaw`SELECT 1`;
+      console.log('✅ Database connection successful');
+      return;
+    } catch (error) {
+      console.error(`❌ Database connection attempt ${attempt}/${MAX_RETRIES} failed`);
+      if (attempt === MAX_RETRIES) {
+        process.exit(1);
+      }
+      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+    }
+  }
+}
+```
+
+**Key Points:**
+- **Why `$queryRaw` instead of `$connect`?** Prisma 7 with driver adapters uses lazy connections. `$connect()` doesn't actually verify database reachability—only a real query does.
+- **Retry logic**: 5 attempts with 3-second delays (15 seconds total) allows database containers to start.
+- **Graceful failure**: Exits with code 1 if database is unreachable, preventing the server from starting in a broken state.
+- **Security**: Password is masked in error logs (`DATABASE_URL` shows `:****@`).
+
+#### Prisma 7 Configuration
+Prisma 7 uses a new configuration model:
+- **`prisma.config.ts`**: Contains `datasource.url` (connection string from env).
+- **`schema.prisma`**: No `url` in datasource block (moved to config file).
+- **Driver adapter**: Uses `@prisma/adapter-pg` with native `pg` pool for PostgreSQL connections.
+
+```typescript
+// backend/src/lib/prisma.ts
+import { PrismaClient } from '../generated/prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import pg from 'pg';
+
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+
+export const prisma = new PrismaClient({ adapter });
+```
+
+### 4.7 Common Backend Patterns & Troubleshooting
 
 #### Circular Dependencies (Injection Issues)
 **Problem**: In complex modules (e.g., Order depends on Audit, Audit depends on User, User depends on Order), NestJS may fail to resolve dependencies automatically.

@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useOrderStore } from '@/lib/store/orderStore'
 import Drawer from '@/components/ui/Drawer'
 import OrderPanel from '@/components/order/OrderPanel'
@@ -13,16 +13,56 @@ export default function FloatingCartButton() {
   const items = activeOrder?.items || []
   const itemCount = items.reduce((sum, item) => sum + item.qty, 0)
 
-  // Don't show if cart is empty
-  if (itemCount === 0) return null
+  // Visibility state for the floating button
+  const [isVisible, setIsVisible] = useState(false)
+
+  // Track previous item count to detect additions
+  const prevItemCountRef = useRef(itemCount)
+  // Timer reference to clear timeouts
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    // If item count increased, show the button
+    if (itemCount > prevItemCountRef.current) {
+      setIsVisible(true)
+
+      // Clear existing timer if any
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+      }
+
+      // Set new timer to hide after 5 seconds
+      timerRef.current = setTimeout(() => {
+        setIsVisible(false)
+      }, 5000)
+    }
+
+    // Update previous count
+    prevItemCountRef.current = itemCount
+
+    // Cleanup timer on unmount
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+      }
+    }
+  }, [itemCount])
+
+  // Also show button if drawer is open (optional, but good UX to key off interaction)
+  // However, requirement says "hide after like 5 seconds", implies transient feedback.
+  // We'll stick to the "item added" trigger as primarily requested.
+  // But we need to ensure we don't return null for the Drawer if hidden,
+  // so we separate the button rendering from the component return.
 
   return (
     <>
-      {/* Floating Button - Only visible on mobile (< md breakpoint) */}
+      {/* Floating Button - Only visible on mobile (< md breakpoint) AND when isVisible is true */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-4 right-4 md:hidden z-40 flex items-center gap-3 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white px-5 py-3 rounded-full shadow-lg transition-all"
+        className={`fixed bottom-4 right-4 md:hidden z-40 flex items-center gap-3 bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white px-5 py-3 rounded-full shadow-lg transition-all transform duration-300 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'
+          }`}
         aria-label={`View cart with ${itemCount} items`}
+        aria-hidden={!isVisible}
       >
         {/* Cart Icon */}
         <div className="relative">
