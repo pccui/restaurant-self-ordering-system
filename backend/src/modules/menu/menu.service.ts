@@ -5,7 +5,7 @@ import { prisma } from '../../lib/prisma';
 export class MenuService {
   private cache: any[] | null = null;
   private lastFetch: number = 0;
-  private readonly TTL = 60 * 60 * 1000; // 1 hour
+  private readonly TTL = parseInt(process.env.MENU_CACHE_TTL || '3600000', 10); // Default 1 hour
 
   async getMenu() {
     const now = Date.now();

@@ -42,6 +42,9 @@ monorepo/
 
 ## 3. Shared Schemas (Source of Truth)
 
+> [!WARNING]
+> **Unstable Zod Version**: The project uses `zod@^4.1.12` (v4 alpha). This is an unstable release. A migration to the stable `v3.x` branch is recommended for production environments to avoid potential breaking changes.
+
 ### Menu Item Schema (simplified)
 ```ts
 export const MenuItemSchema = z.object({
