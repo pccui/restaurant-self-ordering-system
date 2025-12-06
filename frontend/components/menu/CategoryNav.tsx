@@ -36,7 +36,7 @@ export default function CategoryNav({ activeCategory, onCategoryClick }: Categor
 
   return (
     <nav
-      className="sticky top-14 z-30 bg-white border-b border-gray-100 -mx-4 px-4 md:-mx-0 md:px-0"
+      className="sticky top-14 z-30 rounded-lg bg-white border-b border-gray-100 -mx-4 px-4 md:-mx-0 md:px-0"
       aria-label="Menu categories"
     >
       <div className="flex gap-1 overflow-x-auto py-3 scrollbar-hide">
