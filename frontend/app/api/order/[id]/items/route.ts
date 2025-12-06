@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { API_BASE } from '@/lib/config';
 
+// Force dynamic rendering to prevent caching issues
+export const dynamic = 'force-dynamic';
+
 /**
  * PATCH /api/order/[id]/items
  * Update order items (for customers adding items during edit window)

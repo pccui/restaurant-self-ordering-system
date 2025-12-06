@@ -488,43 +488,47 @@ export default function OrdersPage() {
         onClose={() => setEditDialogOpen(false)}
         title={t('editOrderTitle')}
       >
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
 
           {/* Order Info */}
           {orderToEdit && (
-            <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
-              <p className="text-base font-medium text-gray-700 dark:text-gray-300">
-                {t('table')} <span className="text-gray-900 dark:text-white font-bold ml-1 text-lg">{orderToEdit.tableId}</span>
+            <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-gray-100 dark:border-gray-800">
+              <p className="text-sm sm:text-base font-medium text-gray-700 dark:text-gray-300">
+                {t('table')} <span className="text-gray-900 dark:text-white font-bold ml-1 text-base sm:text-lg">{orderToEdit.tableId}</span>
               </p>
-              <span className="text-sm font-medium px-3 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200">
+              <span className="text-xs sm:text-sm font-medium px-2.5 sm:px-3 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200">
                 {t('statusPending')}
               </span>
             </div>
           )}
 
           {/* Editable Items */}
-          <div className="space-y-3 max-h-[60vh] overflow-y-auto px-1 py-1">
+          <div className="space-y-2 sm:space-y-3 max-h-[50vh] sm:max-h-[60vh] overflow-y-auto -mx-1 px-1 py-1">
             {editedItems.map((item, idx) => (
-              <div key={idx} className="flex items-center justify-between gap-4 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all hover:shadow-md">
-                <span className="text-base font-medium text-gray-900 dark:text-gray-100 flex-1">
+              <div key={idx} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 p-3 sm:p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all hover:shadow-md">
+                {/* Item name - full width on mobile */}
+                <span className="text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100 sm:flex-1 leading-snug">
                   {item.name}
                 </span>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => handleItemQtyChange(idx, item.qty - 1)}
-                    className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 active:scale-95 transition-all"
-                  >
-                    −
-                  </button>
-                  <span className="w-8 text-center text-base font-semibold text-gray-900 dark:text-white">{item.qty}</span>
-                  <button
-                    onClick={() => handleItemQtyChange(idx, item.qty + 1)}
-                    className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 active:scale-95 transition-all"
-                  >
-                    +
-                  </button>
-                  <span className="text-sm font-semibold text-gray-900 dark:text-white w-24 text-right tabular-nums">
+                {/* Controls row - always horizontal */}
+                <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <button
+                      onClick={() => handleItemQtyChange(idx, item.qty - 1)}
+                      className="w-8 h-8 sm:w-8 sm:h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 active:scale-95 transition-all touch-manipulation"
+                    >
+                      −
+                    </button>
+                    <span className="w-6 sm:w-8 text-center text-sm sm:text-base font-semibold text-gray-900 dark:text-white">{item.qty}</span>
+                    <button
+                      onClick={() => handleItemQtyChange(idx, item.qty + 1)}
+                      className="w-8 h-8 sm:w-8 sm:h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 active:scale-95 transition-all touch-manipulation"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <span className="text-sm font-semibold text-gray-900 dark:text-white min-w-[70px] sm:w-24 text-right tabular-nums">
                     {formatCurrency(item.priceCents * item.qty)}
                   </span>
                 </div>
@@ -532,8 +536,8 @@ export default function OrdersPage() {
             ))}
 
             {editedItems.length === 0 && (
-              <div className="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700">
-                <p className="text-gray-500 dark:text-gray-400 font-medium">
+              <div className="text-center py-8 sm:py-12 bg-gray-50 dark:bg-gray-800/50 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+                <p className="text-gray-500 dark:text-gray-400 font-medium text-sm sm:text-base">
                   {t('noItems')}
                 </p>
               </div>
@@ -541,22 +545,22 @@ export default function OrdersPage() {
           </div>
 
           {/* Footer Section */}
-          <div className="space-y-4 pt-2">
+          <div className="space-y-3 sm:space-y-4 pt-2">
             {/* New Total */}
-            <div className="flex justify-between items-center p-5 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-              <span className="text-base font-medium text-gray-600 dark:text-gray-400">{t('newTotal')}</span>
-              <span className="font-bold text-2xl text-gray-900 dark:text-white tracking-tight">
+            <div className="flex justify-between items-center p-4 sm:p-5 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+              <span className="text-sm sm:text-base font-medium text-gray-600 dark:text-gray-400">{t('newTotal')}</span>
+              <span className="font-bold text-xl sm:text-2xl text-gray-900 dark:text-white tracking-tight">
                 {formatCurrency(editedTotal)}
               </span>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex justify-end gap-3 pt-2">
+            <div className="flex gap-3 pt-1 sm:pt-2">
               <Button
                 variant="default"
                 onClick={() => setEditDialogOpen(false)}
                 disabled={saving}
-                className="px-6"
+                className="flex-1 sm:flex-none sm:px-6"
               >
                 {t('cancel')}
               </Button>
@@ -564,7 +568,7 @@ export default function OrdersPage() {
                 variant="primary"
                 onClick={handleSaveEdit}
                 disabled={saving || editedItems.length === 0}
-                className="px-6 shadow-lg shadow-primary-500/20"
+                className="flex-1 sm:flex-none sm:px-6 shadow-lg shadow-primary-500/20"
               >
                 {saving ? t('saving') : t('saveChanges')}
               </Button>
