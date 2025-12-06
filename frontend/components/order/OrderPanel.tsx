@@ -82,10 +82,16 @@ export default function OrderPanel() {
 
       // Sync to server if in server mode
       if (order && mode === 'server') {
+        // Send complete item data to ensure prices are preserved even if menu isn't seeded
         const orderPayload = {
           id: order.id,
           tableId: order.tableId,
-          items: order.items.map((i) => ({ menuItemId: i.id, qty: i.qty })),
+          items: order.items.map((i) => ({
+            menuItemId: i.id,
+            qty: i.qty,
+            name: i.name,
+            priceCents: i.priceCents,
+          })),
           status: order.status,
           total: order.total,
           placedAt: order.placedAt,
