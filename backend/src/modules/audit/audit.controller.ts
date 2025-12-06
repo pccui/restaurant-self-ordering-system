@@ -1,16 +1,17 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { AuditService } from './audit.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 
 @Controller('admin/audit')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('ADMIN')
+@UseGuards(JwtAuthGuard, new RolesGuard(new Reflector()))
 export class AuditController {
-  constructor(private readonly auditService: AuditService) {}
+  constructor(private readonly auditService: AuditService) { }
 
   @Get()
+  @Roles('ADMIN')
   async getAuditLogs(
     @Query('entityType') entityType?: string,
     @Query('action') action?: string,
@@ -24,6 +25,7 @@ export class AuditController {
   }
 
   @Get('entity')
+  @Roles('ADMIN', 'WAITER', 'KITCHEN')
   async getLogsForEntity(
     @Query('entityType') entityType: string,
     @Query('entityId') entityId: string,

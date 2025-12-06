@@ -8,7 +8,9 @@ import { OrderStatus } from '@/lib/store/orderStore';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Dialog from '@/components/ui/Dialog';
+import HistoryDialog from '@/components/dashboard/HistoryDialog';
 import { toast } from 'sonner';
+import { History } from 'lucide-react';
 
 const STATUS_FILTERS: (OrderStatus | 'all')[] = ['all', 'pending', 'confirmed', 'preparing', 'completed', 'paid'];
 
@@ -40,6 +42,44 @@ export default function OrdersPage() {
   const [orderToEdit, setOrderToEdit] = useState<DashboardOrder | null>(null);
   const [editedItems, setEditedItems] = useState<DashboardOrder['items']>([]);
   const [saving, setSaving] = useState(false);
+
+  // History modal
+  const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
+  const [historyOrder, setHistoryOrder] = useState<DashboardOrder | null>(null);
+
+  // Notifications state
+  type Notification = {
+    message: string;
+    type: 'info' | 'warning' | 'success';
+    timestamp: number;
+  };
+  const [notifications, setNotifications] = useState<Record<string, Notification>>({});
+
+  const showNotification = useCallback((orderId: string, message: string, type: 'info' | 'warning' | 'success') => {
+    setNotifications(prev => ({
+      ...prev,
+      [orderId]: { message, type, timestamp: Date.now() }
+    }));
+  }, []);
+
+  // Cleanup old notifications
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = Date.now();
+      setNotifications(prev => {
+        const next = { ...prev };
+        let changed = false;
+        Object.entries(next).forEach(([id, notif]) => {
+          if (now - notif.timestamp > 5000) { // 5 seconds duration
+            delete next[id];
+            changed = true;
+          }
+        });
+        return changed ? next : prev;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -93,25 +133,19 @@ export default function OrdersPage() {
             if (!oldOrder) {
               // Case 1: New Order
               // Only notify if we are showing relevant filters
-              toast.success(`New Order from Table ${newOrder.tableId}`, {
-                description: `${formatCurrency(newOrder.total)} - ${newOrder.items.length} items`,
-                duration: 5000,
-              });
+              showNotification(newOrder.id, 'New Order!', 'success');
             } else {
               // Case 2: Status Change
               if (oldOrder.status !== newOrder.status) {
-                toast.info(`Table ${newOrder.tableId}: Status updated`, {
-                  description: `${t(`status${oldOrder.status.charAt(0).toUpperCase() + oldOrder.status.slice(1)}`)} ➔ ${t(`status${newOrder.status.charAt(0).toUpperCase() + newOrder.status.slice(1)}`)}`
-                });
+                const statusLabel = t(`status${newOrder.status.charAt(0).toUpperCase() + newOrder.status.slice(1)}`);
+                showNotification(newOrder.id, `Status: ${statusLabel}`, 'info');
               }
 
               // Case 3: Content Change (Total changed)
               if (oldOrder.total !== newOrder.total && oldOrder.status === newOrder.status) {
                 const diff = newOrder.total - oldOrder.total;
                 const msg = diff > 0 ? 'Items added' : 'Items removed';
-                toast.warning(`Table ${newOrder.tableId}: Order updated`, {
-                  description: `${msg} (${formatCurrency(newOrder.total)})`
-                });
+                showNotification(newOrder.id, msg, 'warning');
               }
             }
           });
@@ -314,82 +348,109 @@ export default function OrdersPage() {
 
       {/* Orders Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        {orders.map((order) => (
-          <Card key={order.id} className="p-3 sm:p-4">
-            {/* Order Header */}
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-gray-900 dark:text-white">
-                    {t('table')} {order.tableId}
-                  </span>
-                  <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${STATUS_COLORS[order.status]}`}>
-                    {t(`status${order.status.charAt(0).toUpperCase() + order.status.slice(1)}`)}
-                  </span>
+        {orders.map((order) => {
+          const notification = notifications[order.id];
+          return (
+            <Card key={order.id} className="p-3 sm:p-4 relative transition-all duration-300">
+              {/* Notification Bubble */}
+              {notification && (
+                <div className={`absolute -top-3 left-1/2 -translate-x-1/2 z-10 px-4 py-1.5 rounded-full shadow-lg text-sm font-semibold animate-in fade-in slide-in-from-bottom-2 whitespace-nowrap flex items-center gap-1.5 ring-2 ring-white dark:ring-gray-900 ${notification.type === 'success' ? 'bg-green-500 text-white' :
+                  notification.type === 'warning' ? 'bg-amber-500 text-white' :
+                    'bg-blue-500 text-white'
+                  }`}>
+                  {notification.message}
                 </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                  {formatDate(order.placedAt)}
-                </p>
+              )}
+
+              {/* Order Header */}
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-gray-900 dark:text-white">
+                      {t('table')} {order.tableId}
+                    </span>
+                    <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${STATUS_COLORS[order.status]}`}>
+                      {t(`status${order.status.charAt(0).toUpperCase() + order.status.slice(1)}`)}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                    {formatDate(order.placedAt)}
+                  </p>
+                </div>
+                <span className="font-bold text-lg text-gray-900 dark:text-white">
+                  {formatCurrency(order.total)}
+                </span>
               </div>
-              <span className="font-bold text-lg text-gray-900 dark:text-white">
-                {formatCurrency(order.total)}
-              </span>
-            </div>
 
-            {/* Order Items */}
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-3 mb-3">
-              <ul className="space-y-1.5">
-                {order.items.map((item, idx) => (
-                  <li key={idx} className="flex justify-between text-sm">
-                    <span className="text-gray-700 dark:text-gray-300">
-                      {item.qty}× {item.name}
-                    </span>
-                    <span className="text-gray-500 dark:text-gray-400">
-                      {formatCurrency(item.priceCents * item.qty)}
-                    </span>
-                  </li>
+              {/* Order Items */}
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-3 mb-3">
+                <ul className="space-y-1.5">
+                  {order.items.map((item, idx) => (
+                    <li key={idx} className="flex justify-between text-sm">
+                      <span className="text-gray-700 dark:text-gray-300">
+                        {item.qty}× {item.name}
+                      </span>
+                      <span className="text-gray-500 dark:text-gray-400">
+                        {formatCurrency(item.priceCents * item.qty)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                {/* Status transition buttons */}
+                {getNextStatusButtons(order).map((btn) => (
+                  <Button
+                    key={btn.status}
+                    size="sm"
+                    variant={btn.status === 'paid' ? 'primary' : 'default'}
+                    onClick={() => handleStatusChange(order.id, btn.status)}
+                  >
+                    {btn.label}
+                  </Button>
                 ))}
-              </ul>
-            </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-              {/* Status transition buttons */}
-              {getNextStatusButtons(order).map((btn) => (
-                <Button
-                  key={btn.status}
-                  size="sm"
-                  variant={btn.status === 'paid' ? 'primary' : 'default'}
-                  onClick={() => handleStatusChange(order.id, btn.status)}
-                >
-                  {btn.label}
-                </Button>
-              ))}
+                {/* Edit button - shown for pending orders to all staff */}
+                {canEditOrder(order) && (
+                  <Button
+                    size="sm"
+                    variant="default"
+                    onClick={() => openEditDialog(order)}
+                  >
+                    {t('editOrder')}
+                  </Button>
+                )}
 
-              {/* Edit button - shown for pending orders to all staff */}
-              {canEditOrder(order) && (
-                <Button
-                  size="sm"
-                  variant="default"
-                  onClick={() => openEditDialog(order)}
-                >
-                  {t('editOrder')}
-                </Button>
-              )}
+                {/* Delete button - shown only to admin, not for paid orders */}
+                {canDeleteOrder(order) && (
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    onClick={() => openDeleteDialog(order)}
+                  >
+                    {t('deleteOrder')}
+                  </Button>
+                )}
 
-              {/* Delete button - shown only to admin, not for paid orders */}
-              {canDeleteOrder(order) && (
+                {/* History Button - Always shown */}
                 <Button
                   size="sm"
-                  variant="danger"
-                  onClick={() => openDeleteDialog(order)}
+                  variant="secondary"
+                  className="px-2"
+                  onClick={() => {
+                    setHistoryOrder(order);
+                    setHistoryDialogOpen(true);
+                  }}
+                  title={t('history')}
                 >
-                  {t('deleteOrder')}
+                  <History className="w-4 h-4" />
                 </Button>
-              )}
-            </div>
-          </Card>
-        ))}
+              </div>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Delete Confirmation Dialog */}
@@ -511,6 +572,13 @@ export default function OrdersPage() {
           </div>
         </div>
       </Dialog>
-    </div>
+
+      <HistoryDialog
+        open={historyDialogOpen}
+        onClose={() => setHistoryDialogOpen(false)}
+        orderId={historyOrder?.id || null}
+        tableId={historyOrder?.tableId || null}
+      />
+    </div >
   );
 }

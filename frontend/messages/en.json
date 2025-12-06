@@ -138,6 +138,7 @@
     "confirmDeleteTitle": "Delete Order",
     "confirmDeleteMessage": "Are you sure you want to delete the order for Table {table}? Total: {total}. This action cannot be undone.",
     "deleting": "Deleting...",
+    "history": "History",
     "editOrderTitle": "Edit Order",
     "noItems": "No items in order",
     "newTotal": "New Total",

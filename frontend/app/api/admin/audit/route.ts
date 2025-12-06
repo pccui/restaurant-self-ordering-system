@@ -7,14 +7,21 @@ export async function GET(request: NextRequest) {
     const params = url.searchParams.toString();
     const backendUrl = `${API_BASE}/api/admin/audit${params ? `?${params}` : ''}`;
 
-    // Forward cookies for authentication
+    // Forward cookies and Authorization header
     const cookies = request.headers.get('cookie') || '';
+    const authHeader = request.headers.get('Authorization');
+
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+      'Cookie': cookies,
+    };
+
+    if (authHeader) {
+      headers['Authorization'] = authHeader;
+    }
 
     const response = await fetch(backendUrl, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Cookie': cookies,
-      },
+      headers,
     });
 
     if (!response.ok) {
