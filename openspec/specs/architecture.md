@@ -317,6 +317,39 @@ app/
   ├── layout.tsx
   └── page.tsx  (redirect → default locale)
 
+### API Route Caching Configuration
+
+All order-related API routes use `export const dynamic = 'force-dynamic'` to prevent Vercel edge caching issues:
+
+```typescript
+// Example: app/api/order/[id]/items/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { API_BASE } from '@/lib/config';
+
+// Force dynamic rendering to prevent caching issues
+export const dynamic = 'force-dynamic';
+
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  // ... proxy to backend
+}
+```
+
+**Why `force-dynamic`?**
+- API routes that proxy to a backend return different data on each request
+- Vercel's edge CDN may cache 404 responses before routes are fully deployed
+- Without this flag, users may see stale 404 errors that only resolve after page refresh
+- Dynamic rendering ensures every request executes the route handler
+
+**Routes with `force-dynamic`:**
+| Route | File |
+|-------|------|
+| `/api/order` | `app/api/order/route.ts` |
+| `/api/order/[id]` | `app/api/order/[id]/route.ts` |
+| `/api/order/[id]/items` | `app/api/order/[id]/items/route.ts` |
+| `/api/order/[id]/status` | `app/api/order/[id]/status/route.ts` |
+| `/api/order/[id]/confirm` | `app/api/order/[id]/confirm/route.ts` |
+| `/api/order/table/[tableId]` | `app/api/order/table/[tableId]/route.ts` |
+
 lib/
   ├── api/          (client-side API utilities)
   ├── data/         (static data, menuData.ts)
