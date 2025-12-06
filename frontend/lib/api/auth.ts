@@ -1,8 +1,9 @@
-import { User } from '../store/authStore';
+import { User, useAuthStore } from '../store/authStore';
 import { API_BASE } from '../config';
 
 interface LoginResponse {
   user: User;
+  accessToken: string;
 }
 
 interface ApiError {
@@ -20,7 +21,7 @@ export async function login(email: string, password: string): Promise<User> {
     headers: {
       'Content-Type': 'application/json',
     },
-    credentials: 'include', // Important: include cookies
+    // credentials: 'include', // No longer relying on cookies alone
     body: JSON.stringify({ email, password }),
   });
 
@@ -33,18 +34,25 @@ export async function login(email: string, password: string): Promise<User> {
   }
 
   const data: LoginResponse = await res.json();
+
+  // Update store with user and token
+  useAuthStore.getState().setUser(data.user, data.accessToken);
+
   return data.user;
 }
 
 /**
  * Logout the current user
- * Clears the auth cookie on the server
  */
 export async function logout(): Promise<void> {
+  // Clear local state
+  useAuthStore.getState().logout();
+
+  // Optionally notify backend (though stateless JWT doesn't strictly require it unless blacklisting)
   await fetch(`${API_BASE}/api/auth/logout`, {
     method: 'POST',
-    credentials: 'include',
-  });
+    // credentials: 'include',
+  }).catch(() => { });
 }
 
 /**
@@ -52,17 +60,28 @@ export async function logout(): Promise<void> {
  * Returns null if not authenticated
  */
 export async function getMe(): Promise<User | null> {
+  const token = useAuthStore.getState().accessToken;
+  if (!token) return null;
+
   try {
     const res = await fetch(`${API_BASE}/api/auth/me`, {
-      credentials: 'include',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+      // credentials: 'include',
     });
 
     if (!res.ok) {
+      if (res.status === 401) {
+        useAuthStore.getState().logout();
+      }
       return null;
     }
 
-    const user: User = await res.json();
-    return user;
+    const data = await res.json();
+    // Refresh user data in store
+    useAuthStore.getState().setUser(data.user); // Maintain existing token
+    return data.user;
   } catch {
     return null;
   }

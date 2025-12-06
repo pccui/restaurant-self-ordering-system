@@ -38,10 +38,11 @@ export class AuthController {
   ) {
     const { accessToken, user } = await this.authService.login(req.user);
 
-    // Set JWT in httpOnly cookie
+    // Set JWT in httpOnly cookie (legacy support / backup)
     res.cookie('jwt', accessToken, COOKIE_OPTIONS);
 
-    return { user };
+    // Return accessToken in body for Bearer auth support
+    return { user, accessToken };
   }
 
   @Post('logout')

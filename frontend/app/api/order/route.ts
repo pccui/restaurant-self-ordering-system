@@ -72,12 +72,19 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log('Received order:', body);
 
+    // Forward auth header if present
+    const authHeader = request.headers.get('authorization');
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    if (authHeader) {
+      headers['Authorization'] = authHeader;
+    }
+
     // Forward to backend
     const backendRes = await fetch(`${API_BASE}/api/order`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(body),
     });
 
@@ -104,13 +111,15 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    // Forward cookies for authentication
-    const cookies = request.headers.get('cookie') || '';
+    // Forward auth header for authentication
+    const authHeader = request.headers.get('authorization');
+    const headers: HeadersInit = {};
+    if (authHeader) {
+      headers['Authorization'] = authHeader;
+    }
 
     const backendRes = await fetch(`${API_BASE}/api/order`, {
-      headers: {
-        'Cookie': cookies,
-      },
+      headers,
     });
 
     const data = await backendRes.json();

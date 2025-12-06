@@ -1,4 +1,5 @@
 import { API_BASE } from '../config';
+import { useAuthStore } from '../store/authStore';
 
 export interface AuditLog {
   id: string;
@@ -21,9 +22,21 @@ interface GetAuditLogsParams {
   limit?: number;
 }
 
+// Helper to get auth headers
+const getAuthHeaders = (): HeadersInit => {
+  const token = useAuthStore.getState().accessToken;
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+};
+
 /**
  * Get audit logs (admin only)
- * Calls backend directly since auth cookie is set for backend domain
+ * Requires Bearer token
  */
 export async function getAuditLogs(params?: GetAuditLogsParams): Promise<AuditLog[]> {
   const queryParams = new URLSearchParams();
@@ -34,6 +47,7 @@ export async function getAuditLogs(params?: GetAuditLogsParams): Promise<AuditLo
   const url = `${API_BASE}/api/admin/audit${queryParams.toString() ? `?${queryParams}` : ''}`;
 
   const res = await fetch(url, {
+    headers: getAuthHeaders(),
     credentials: 'include',
   });
 
@@ -51,6 +65,7 @@ export async function getAuditLogsForEntity(entityType: string, entityId: string
   const url = `${API_BASE}/api/admin/audit/entity?entityType=${entityType}&entityId=${entityId}`;
 
   const res = await fetch(url, {
+    headers: getAuthHeaders(),
     credentials: 'include',
   });
 

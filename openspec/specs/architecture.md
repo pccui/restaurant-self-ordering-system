@@ -162,15 +162,15 @@ backend/src/modules/
 | Delete order | ❌ | ❌ | ✅ (not paid) |
 
 ### 4.5 Security & CORS
+- **Authentication**:
+  - Primary: **Bearer Token** (JWT) via `Authorization` header.
+  - Legacy/Dev: Supports HttpOnly cookies (optional fallback).
 - **CORS Configuration**:
   - Implemented via NestJS `app.enableCors()`.
   - Development: Allows all origins.
   - Production: Restricts to `FRONTEND_URL`.
   - Allowed methods: GET, POST, PUT, DELETE, PATCH, OPTIONS.
-  - Credentials allowed.
-
-  - Allowed methods: GET, POST, PUT, DELETE, PATCH, OPTIONS.
-  - Credentials allowed.
+  - Credentials allowed (initially required for cookies, maintained for flexibility).
 
 ### 4.6 Common Backend Patterns & Troubleshooting
 

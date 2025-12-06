@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, FormEvent, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useAuthStore } from '@/lib/store/authStore';
 import { login } from '@/lib/api/auth';
@@ -12,6 +12,7 @@ import Link from 'next/link';
 export default function LoginPage() {
   const t = useTranslations('login');
   const router = useRouter();
+  const searchParams = useSearchParams();
   const locale = useLocale();
   const { setUser, setLoading } = useAuthStore();
 
@@ -20,6 +21,13 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('autofill') === 'true') {
+      setEmail('admin@restaurant.local');
+      setPassword('admin123');
+    }
+  }, [searchParams]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();

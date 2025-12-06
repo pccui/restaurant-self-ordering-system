@@ -1,12 +1,15 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useTranslations } from 'next-intl'
+import Link from 'next/link'
+import { useTranslations, useLocale } from 'next-intl'
 import { useDemoBanner, DEMO_MODE } from '@/lib/store/useDemoBanner'
 import { Gamepad2, X } from 'lucide-react'
 
 export default function DemoBanner() {
   const t = useTranslations('demo')
+  const tDash = useTranslations('dashboard')
+  const locale = useLocale()
   const { dismissed, initialized, dismiss, initialize } = useDemoBanner()
 
   useEffect(() => {
@@ -40,13 +43,55 @@ export default function DemoBanner() {
               </p>
               <p>
                 <strong>{t('howToCheck')}:</strong>{' '}
-                <code className="bg-amber-100 dark:bg-amber-800 px-1 py-0.5 rounded">/en/dashboard</code>
+                <Link
+                  href={`/${locale}/dashboard`}
+                  className="bg-amber-100 dark:bg-amber-800 px-1 py-0.5 rounded hover:bg-amber-200 dark:hover:bg-amber-700 underline decoration-amber-500/50"
+                  target="_blank"
+                >
+                  {tDash('title')}
+                </Link>
               </p>
               <p>
                 <strong>{t('credentials')}:</strong>{' '}
                 <code className="bg-amber-100 dark:bg-amber-800 px-1 py-0.5 rounded">admin@restaurant.local</code>
                 {' / '}
                 <code className="bg-amber-100 dark:bg-amber-800 px-1 py-0.5 rounded">admin123</code>
+                <button
+                  onClick={() => {
+                    const emailInput = document.getElementById('email') as HTMLInputElement;
+                    const passInput = document.getElementById('password') as HTMLInputElement;
+                    if (emailInput && passInput) {
+                      // We are on login page, fill directly
+                      // Use setter from prototype to bypass React 15/16 value tracking if needed,
+                      // though simple dispatch usually works for newer React versions if value setter is standard.
+                      // For robustness with React 'onChange', we set value then dispatch 'input'.
+
+                      const setNativeValue = (element: HTMLInputElement, value: string) => {
+                        const valueSetter = Object.getOwnPropertyDescriptor(element, 'value')?.set;
+                        const prototype = Object.getPrototypeOf(element);
+                        const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, 'value')?.set;
+
+                        if (prototypeValueSetter && valueSetter !== prototypeValueSetter) {
+                          prototypeValueSetter.call(element, value);
+                        } else if (valueSetter) {
+                          valueSetter.call(element, value);
+                        } else {
+                          element.value = value;
+                        }
+                        element.dispatchEvent(new Event('input', { bubbles: true }));
+                      };
+
+                      setNativeValue(emailInput, 'admin@restaurant.local');
+                      setNativeValue(passInput, 'admin123');
+                    } else {
+                      // Navigate to login with autofill param
+                      window.location.href = `/${locale}/login?autofill=true`;
+                    }
+                  }}
+                  className="ml-2 text-xs bg-amber-200 dark:bg-amber-700 hover:bg-amber-300 dark:hover:bg-amber-600 px-2 py-0.5 rounded border border-amber-300 dark:border-amber-600 transition-colors"
+                >
+                  Fill
+                </button>
               </p>
             </div>
           </div>
@@ -62,5 +107,6 @@ export default function DemoBanner() {
         </div>
       </div>
     </div>
+
   )
 }

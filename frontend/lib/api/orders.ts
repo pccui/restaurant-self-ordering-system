@@ -1,5 +1,6 @@
 import { OrderStatus } from '../store/orderStore';
 import { API_BASE } from '../config';
+import { useAuthStore } from '../store/authStore';
 
 export interface DashboardOrder {
   id: string;
@@ -22,6 +23,18 @@ interface GetOrdersParams {
   tableId?: string;
 }
 
+// Helper to get auth headers
+const getAuthHeaders = (): HeadersInit => {
+  const token = useAuthStore.getState().accessToken;
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+};
+
 /**
  * Get all orders (for dashboard)
  * Requires authentication
@@ -34,6 +47,7 @@ export async function getOrders(params?: GetOrdersParams): Promise<DashboardOrde
   const url = `${API_BASE}/api/order${queryParams.toString() ? `?${queryParams}` : ''}`;
 
   const res = await fetch(url, {
+    headers: getAuthHeaders(),
     credentials: 'include',
   });
 
@@ -49,6 +63,7 @@ export async function getOrders(params?: GetOrdersParams): Promise<DashboardOrde
  */
 export async function getOrder(id: string): Promise<DashboardOrder> {
   const res = await fetch(`${API_BASE}/api/order/${id}`, {
+    headers: getAuthHeaders(),
     credentials: 'include',
   });
 
@@ -66,9 +81,7 @@ export async function getOrder(id: string): Promise<DashboardOrder> {
 export async function updateOrderStatus(id: string, status: OrderStatus): Promise<DashboardOrder> {
   const res = await fetch(`${API_BASE}/api/order/${id}/status`, {
     method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(), // includes Content-Type
     credentials: 'include',
     body: JSON.stringify({ status }),
   });
@@ -96,6 +109,7 @@ export async function markOrderAsPaid(id: string): Promise<DashboardOrder> {
 export async function deleteOrder(id: string): Promise<DashboardOrder> {
   const res = await fetch(`${API_BASE}/api/order/${id}`, {
     method: 'DELETE',
+    headers: getAuthHeaders(),
     credentials: 'include',
   });
 
@@ -117,9 +131,7 @@ export async function updateOrder(
 ): Promise<DashboardOrder> {
   const res = await fetch(`${API_BASE}/api/order/${id}`, {
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
     credentials: 'include',
     body: JSON.stringify(data),
   });

@@ -221,7 +221,7 @@ The system supports multi-category Chinese cuisine:
 
 ### Staff Dashboard
 
-- **Authentication**: JWT-based with httpOnly cookies
+- **Authentication**: JWT-based with Bearer Token (Authorization header)
 - **Roles**: ADMIN, KITCHEN, WAITER
 - **Features**:
   - View all orders with status filter

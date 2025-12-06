@@ -1,4 +1,5 @@
 import localforage from 'localforage';
+import { useAuthStore } from '../store/authStore';
 
 // Configure localforage for the restaurant app
 localforage.config({ name: 'restaurant-app', storeName: 'local-db' });
@@ -16,6 +17,18 @@ interface SyncResult {
   synced?: number;
   error?: string;
 }
+
+// Helper to get auth headers
+const getAuthHeaders = (): HeadersInit => {
+  const token = useAuthStore.getState().accessToken;
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+};
 
 /**
  * Queue an order for later sync to server
@@ -57,7 +70,7 @@ export async function syncPendingOrdersToServer(maxRetries = 3): Promise<SyncRes
     try {
       const res = await fetch('/api/sync', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify(pending)
       });
 
@@ -91,7 +104,7 @@ export async function syncOrderToServer(order: Order): Promise<boolean> {
   try {
     const res = await fetch('/api/order', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(order)
     });
 
@@ -119,7 +132,7 @@ export async function updateOrderItemsOnServer(
   try {
     const res = await fetch(`/api/order/${orderId}/items`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ items, total })
     });
 

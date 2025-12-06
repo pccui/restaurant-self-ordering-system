@@ -1,4 +1,4 @@
-import { User, Role } from '../store/authStore';
+import { User, Role, useAuthStore } from '../store/authStore';
 import { API_BASE } from '../config';
 
 export interface CreateUserData {
@@ -15,11 +15,24 @@ export interface UpdateUserData {
   role?: Role;
 }
 
+// Helper to get auth headers
+const getAuthHeaders = (): HeadersInit => {
+  const token = useAuthStore.getState().accessToken;
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+};
+
 /**
  * Get all users (admin only)
  */
 export async function getUsers(): Promise<User[]> {
   const res = await fetch(`${API_BASE}/api/admin/users`, {
+    headers: getAuthHeaders(),
     credentials: 'include',
   });
 
@@ -35,6 +48,7 @@ export async function getUsers(): Promise<User[]> {
  */
 export async function getUser(id: string): Promise<User> {
   const res = await fetch(`${API_BASE}/api/admin/users/${id}`, {
+    headers: getAuthHeaders(),
     credentials: 'include',
   });
 
@@ -51,9 +65,7 @@ export async function getUser(id: string): Promise<User> {
 export async function createUser(data: CreateUserData): Promise<User> {
   const res = await fetch(`${API_BASE}/api/admin/users`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
     credentials: 'include',
     body: JSON.stringify(data),
   });
@@ -72,9 +84,7 @@ export async function createUser(data: CreateUserData): Promise<User> {
 export async function updateUser(id: string, data: UpdateUserData): Promise<User> {
   const res = await fetch(`${API_BASE}/api/admin/users/${id}`, {
     method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
     credentials: 'include',
     body: JSON.stringify(data),
   });
@@ -93,6 +103,7 @@ export async function updateUser(id: string, data: UpdateUserData): Promise<User
 export async function deleteUser(id: string): Promise<void> {
   const res = await fetch(`${API_BASE}/api/admin/users/${id}`, {
     method: 'DELETE',
+    headers: getAuthHeaders(),
     credentials: 'include',
   });
 
